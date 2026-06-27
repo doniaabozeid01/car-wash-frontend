@@ -1,0 +1,283 @@
+.dashboard {
+  min-height: 100vh;
+  background: var(--bg-secondary);
+
+  &__header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(18, 18, 18, 0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  &__header-inner {
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: opacity var(--transition);
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+
+  &__logo {
+    height: clamp(48px, 8vw, 64px);
+    width: auto;
+    display: block;
+    flex-shrink: 0;
+  }
+
+  &__site-name {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+    font-size: clamp(1.125rem, 2.5vw, 1.5rem);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  &__site-name-aura {
+    color: var(--gold);
+  }
+
+  &__site-name-auto {
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.85em;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  &__logout {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-subtle);
+    transition: color var(--transition), border-color var(--transition);
+
+    &:hover {
+      color: var(--gold);
+      border-color: var(--border-gold);
+    }
+  }
+
+  &__main {
+    padding: 24px;
+  }
+
+  &__container {
+    max-width: var(--container-max);
+    margin: 0 auto;
+  }
+
+  &__greeting {
+    margin-bottom: 28px;
+
+    &-label {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    &-name {
+      font-size: clamp(1.5rem, 4vw, 2rem);
+      font-weight: 700;
+    }
+  }
+
+  &__grid {
+    display: grid;
+    gap: 20px;
+    align-items: stretch;
+  }
+}
+
+.points-card {
+  background: linear-gradient(160deg, rgba(212, 175, 55, 0.12) 0%, var(--bg-card) 45%);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100%;
+
+  &__label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  &__value {
+    font-size: clamp(3rem, 8vw, 4rem);
+    font-weight: 800;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 32px;
+  }
+
+  &__progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+  }
+
+  &__progress-bar {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+
+  &__progress-fill {
+    height: 100%;
+    background: var(--gradient-gold);
+    border-radius: 4px;
+    transition: width 0.6s ease;
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.4);
+  }
+
+  &__note {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+
+    strong {
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    &--ready {
+      color: var(--gold-light);
+    }
+  }
+}
+
+.pass-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100%;
+
+  &__title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  &__desc {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+  }
+
+  &__qr {
+    width: 100%;
+    max-width: 220px;
+    aspect-ratio: 1;
+    margin: 0 auto 24px;
+    border: 3px solid rgba(255, 255, 255, 0.85);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    padding: 8px;
+    background: #0a0a0a;
+  }
+
+  &__qr-pattern {
+    width: 100%;
+    height: 100%;
+    background:
+      repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(255,255,255,0.03) 4px, rgba(255,255,255,0.03) 8px),
+      repeating-linear-gradient(-45deg, transparent, transparent 6px, rgba(212,175,55,0.05) 6px, rgba(212,175,55,0.05) 12px),
+      radial-gradient(ellipse at 30% 40%, rgba(212, 175, 55, 0.15) 0%, transparent 60%),
+      radial-gradient(ellipse at 70% 60%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+      #111;
+  }
+
+  &__member {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__member-label {
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  &__member-id {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+  }
+}
+
+@media (min-width: 768px) {
+  .dashboard__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .points-card,
+  .pass-card {
+    padding: 32px 28px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .dashboard__grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .dashboard__header-inner {
+    padding: 24px 32px;
+  }
+
+  .dashboard__brand {
+    gap: 20px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .dashboard__main {
+    padding: 32px 24px;
+  }
+}

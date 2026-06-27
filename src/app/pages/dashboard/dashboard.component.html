@@ -1,0 +1,56 @@
+<div class="dashboard">
+  <header class="dashboard__header">
+    <div class="dashboard__header-inner">
+      <a routerLink="/" class="dashboard__brand">
+        <img src="assets/logo.png" alt="Aura Automotive" class="dashboard__logo">
+        <span class="dashboard__site-name">
+          <span class="dashboard__site-name-aura">Aura</span>
+          <span class="dashboard__site-name-auto">Automotive</span>
+        </span>
+      </a>
+      <button type="button" class="dashboard__logout" (click)="logout()">Logout</button>
+    </div>
+  </header>
+
+  <main class="dashboard__main">
+    <div class="dashboard__container">
+      <section class="dashboard__greeting">
+        <p class="dashboard__greeting-label">Esteemed Client</p>
+        <h1 class="dashboard__greeting-name">Hello, {{ userName }}</h1>
+      </section>
+
+      <div class="dashboard__grid">
+        <div class="points-card">
+          <p class="points-card__label">Your Points</p>
+          <div class="points-card__value">{{ memberPoints | number }}</div>
+
+          <div class="points-card__progress-header">
+            <span>Free Wash Reward</span>
+            <span>{{ memberPoints }} / {{ freeWashGoal }} PTS</span>
+          </div>
+          <div class="points-card__progress-bar">
+            <div class="points-card__progress-fill" [style.width.%]="progressPercent"></div>
+          </div>
+          <p class="points-card__note" *ngIf="pointsRemaining > 0">
+            {{ pointsRemaining }} points until your <strong>free wash</strong>
+          </p>
+          <p class="points-card__note points-card__note--ready" *ngIf="pointsRemaining === 0">
+            You've earned a <strong>free wash!</strong> Visit us to redeem.
+          </p>
+        </div>
+
+        <div class="pass-card">
+          <h3 class="pass-card__title">Digital Pass</h3>
+          <p class="pass-card__desc">Scan at the branch to collect or redeem points</p>
+          <div class="pass-card__qr">
+            <div class="pass-card__qr-pattern"></div>
+          </div>
+          <div class="pass-card__member">
+            <span class="pass-card__member-label">Member ID</span>
+            <span class="pass-card__member-id">#772-910</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

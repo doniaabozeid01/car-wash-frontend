@@ -1,0 +1,131 @@
+<div class="cashier-page" *ngIf="cashier">
+  <div class="cashier-page__bg"></div>
+
+  <header class="cashier-page__header">
+    <div class="cashier-page__header-inner">
+      <a routerLink="/" class="cashier-page__brand">
+        <img src="assets/logo.png" alt="Aura Automotive" class="cashier-page__logo">
+        <span class="cashier-page__site-name">
+          <span class="cashier-page__site-name-aura">Aura</span>
+          <span class="cashier-page__site-name-auto">Automotive</span>
+        </span>
+      </a>
+      <button type="button" class="cashier-page__logout" (click)="logout()">Logout</button>
+    </div>
+  </header>
+
+  <main class="cashier-page__main">
+    <div class="cashier-workspace">
+      <section class="cashier-strip">
+        <div class="cashier-strip__info">
+          <span class="cashier-strip__role">Cashier Portal</span>
+          <h1 class="cashier-strip__name">{{ cashier.name }}</h1>
+          <p class="cashier-strip__phone">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="5" y="2" width="14" height="20" rx="2"/>
+              <line x1="12" y1="18" x2="12" y2="18.01"/>
+            </svg>
+            {{ cashier.displayPhone }}
+          </p>
+        </div>
+
+        <div class="cashier-strip__meta">
+          <div class="cashier-strip__stat">
+            <span class="cashier-strip__stat-value">{{ scanCount }}</span>
+            <span class="cashier-strip__stat-label">Scans Today</span>
+          </div>
+          <div class="cashier-strip__status" [class.cashier-strip__status--live]="scannerActive">
+            <span class="cashier-strip__status-dot"></span>
+            {{ scannerActive ? 'Scanner Live' : (scannerLoading ? 'Starting...' : 'Camera Offline') }}
+          </div>
+        </div>
+      </section>
+
+      <section class="scanner-card">
+        <div class="scanner-card__head">
+          <div>
+            <h2 class="scanner-card__title">QR Scanner</h2>
+            <p class="scanner-card__subtitle">Scan customer digital pass to register the visit</p>
+          </div>
+          <div class="scanner-card__pulse" *ngIf="scannerActive">
+            <span></span>
+            Scanner Active
+          </div>
+        </div>
+
+        <div class="scanner-card__viewport" [class.scanner-card__viewport--live]="scannerActive">
+          <div id="cashier-qr-reader" class="scanner-card__reader"></div>
+
+          <div class="scanner-card__overlay" *ngIf="scannerActive">
+            <span class="scanner-card__corner scanner-card__corner--tl"></span>
+            <span class="scanner-card__corner scanner-card__corner--tr"></span>
+            <span class="scanner-card__corner scanner-card__corner--bl"></span>
+            <span class="scanner-card__corner scanner-card__corner--br"></span>
+            <div class="scanner-card__scanline"></div>
+          </div>
+
+          <div class="scanner-card__state" *ngIf="scannerLoading">
+            <div class="scanner-card__spinner"></div>
+            <p>Starting camera...</p>
+          </div>
+
+          <div class="scanner-card__state scanner-card__state--error" *ngIf="scannerError">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+            <p>{{ scannerError }}</p>
+            <button type="button" class="scanner-card__retry" (click)="retryScanner()">Retry Camera</button>
+          </div>
+        </div>
+
+        <div class="scanner-card__steps">
+          <div class="step">
+            <span class="step__num">1</span>
+            <span class="step__text">Ask customer to open their Digital Pass</span>
+          </div>
+          <div class="step">
+            <span class="step__num">2</span>
+            <span class="step__text">Align QR code inside the golden frame</span>
+          </div>
+          <div class="step">
+            <span class="step__num">3</span>
+            <span class="step__text">Choose an action: Add 30, Add 50, or Free wash</span>
+          </div>
+        </div>
+
+        <div class="scan-result" *ngIf="lastScan">
+          <div class="scan-result__header">
+            <span class="scan-result__label">Customer Scanned</span>
+            <span class="scan-result__time">{{ scanTime }}</span>
+          </div>
+          <p class="scan-result__value">{{ lastScan }}</p>
+
+          <div class="scan-actions" *ngIf="showActions">
+            <p class="scan-actions__prompt">Select an action</p>
+            <div class="scan-actions__buttons">
+              <button type="button" class="scan-actions__btn" (click)="applyAction('add30')">
+                <span class="scan-actions__btn-value">+30</span>
+                <span class="scan-actions__btn-label">Add Points</span>
+              </button>
+              <button type="button" class="scan-actions__btn" (click)="applyAction('add50')">
+                <span class="scan-actions__btn-value">+50</span>
+                <span class="scan-actions__btn-label">Add Points</span>
+              </button>
+              <button type="button" class="scan-actions__btn scan-actions__btn--free" (click)="applyAction('freeWash')">
+                <span class="scan-actions__btn-value">Free</span>
+                <span class="scan-actions__btn-label">Wash</span>
+              </button>
+            </div>
+          </div>
+
+          <p class="scan-result__feedback" *ngIf="actionMessage" [class.scan-result__feedback--error]="actionError">
+            {{ actionMessage }}
+          </p>
+
+          <button type="button" class="scan-result__clear" (click)="clearScan()">Scan Next Customer</button>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>

@@ -1,0 +1,137 @@
+.landing {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gradient-dark);
+  position: relative;
+  overflow: hidden;
+  padding: 24px;
+
+  &__glow {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.12) 0%, transparent 70%);
+    pointer-events: none;
+    transition: opacity 0.9s ease, transform 0.9s ease;
+  }
+
+  &__shimmer {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 45%, rgba(212, 175, 55, 0.18) 0%, transparent 55%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+
+    &--active {
+      opacity: 1;
+    }
+  }
+
+  &--exiting {
+    .landing__glow {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(1.6);
+    }
+  }
+
+  &__content {
+    text-align: center;
+    z-index: 1;
+    animation: fadeUp 0.8s ease-out;
+
+    &--exit {
+      animation: splashExit 0.85s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+  }
+
+  &__logo-box {
+    display: inline-flex;
+    margin-bottom: 40px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 0 40px rgba(212, 175, 55, 0.15);
+  }
+
+  &__logo {
+    width: clamp(160px, 40vw, 220px);
+    height: auto;
+    display: block;
+  }
+
+  &__title {
+    font-size: clamp(2.5rem, 8vw, 4rem);
+    font-weight: 800;
+    letter-spacing: 0.35em;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+
+  &__tagline {
+    font-size: clamp(0.875rem, 2.5vw, 1.125rem);
+    color: var(--text-secondary);
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    margin-bottom: 40px;
+  }
+
+  &__loader {
+    width: 100%;
+    max-width: 240px;
+    margin: 0 auto;
+  }
+
+  &__loader-track {
+    height: 3px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  &__loader-fill {
+    height: 100%;
+    width: 0;
+    background: var(--gradient-gold);
+    border-radius: 2px;
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.5);
+    animation: loadBar 3s ease-in-out forwards;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes loadBar {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes splashExit {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-28px) scale(1.04);
+    filter: blur(6px);
+  }
+}

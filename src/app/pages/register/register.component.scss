@@ -1,0 +1,109 @@
+.register-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  &__bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
+      var(--gradient-dark);
+  }
+
+  &__main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    max-width: 480px;
+    margin: 0 auto;
+    width: 100%;
+    min-height: 100vh;
+  }
+}
+
+.register-card {
+  width: 100%;
+  padding: 32px 28px;
+
+  &__icon {
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(212, 175, 55, 0.12);
+    color: var(--gold);
+  }
+
+  &__title {
+    text-align: center;
+    font-size: 1.375rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  &__terms {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+
+    input[type="checkbox"] {
+      margin-top: 3px;
+      accent-color: var(--gold);
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    a {
+      color: var(--gold);
+      font-weight: 500;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  &__signin {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+
+    a {
+      color: var(--gold);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .register-page__main {
+    padding: 40px 24px;
+  }
+
+  .register-card {
+    padding: 40px 36px;
+  }
+}
