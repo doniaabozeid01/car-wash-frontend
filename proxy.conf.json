@@ -1,7 +1,7 @@
 {
   "/api": {
-    "target": "https://localhost:7096",
-    "secure": false,
+    "target": "https://fullcar.somee.com",
+    "secure": true,
     "changeOrigin": true,
     "logLevel": "debug"
   }
