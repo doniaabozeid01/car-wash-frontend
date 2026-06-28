@@ -4,13 +4,16 @@
   <header class="cashier-page__header">
     <div class="cashier-page__header-inner">
       <a routerLink="/" class="cashier-page__brand">
-        <img src="assets/logo.png" alt="FULL CARS" class="cashier-page__logo">
+        <img src="assets/logo.png" [alt]="'common.brand' | translate" class="cashier-page__logo">
         <span class="cashier-page__site-name">
           <span class="cashier-page__site-name-full">FULL</span>
           <span class="cashier-page__site-name-cars">CARS</span>
         </span>
       </a>
-      <button type="button" class="cashier-page__logout" (click)="logout()">Logout</button>
+      <div class="cashier-page__actions">
+        <app-language-toggle [compact]="true"></app-language-toggle>
+        <button type="button" class="cashier-page__logout" (click)="logout()">{{ 'common.logout' | translate }}</button>
+      </div>
     </div>
   </header>
 
@@ -18,7 +21,7 @@
     <div class="cashier-workspace">
       <section class="cashier-strip">
         <div class="cashier-strip__info">
-          <span class="cashier-strip__role">Cashier Portal</span>
+          <span class="cashier-strip__role">{{ 'cashier.portal' | translate }}</span>
           <h1 class="cashier-strip__name">{{ cashier.name }}</h1>
           <p class="cashier-strip__phone">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -33,12 +36,12 @@
       <section class="scanner-card">
         <div class="scanner-card__head">
           <div>
-            <h2 class="scanner-card__title">QR Scanner</h2>
-            <p class="scanner-card__subtitle">وجّه الكاميرا الخلفية نحو QR العميل</p>
+            <h2 class="scanner-card__title">{{ 'cashier.scannerTitle' | translate }}</h2>
+            <p class="scanner-card__subtitle">{{ 'cashier.scannerSubtitle' | translate }}</p>
           </div>
           <div class="scanner-card__pulse" *ngIf="scannerActive">
             <span></span>
-            الكاميرا شغّالة
+            {{ 'cashier.cameraLive' | translate }}
           </div>
         </div>
 
@@ -55,7 +58,7 @@
 
           <div class="scanner-card__state" *ngIf="scannerLoading && !showActions">
             <div class="scanner-card__spinner"></div>
-            <p>جاري فتح الكاميرا...</p>
+            <p>{{ 'cashier.openingCamera' | translate }}</p>
           </div>
 
           <div class="scanner-card__state scanner-card__state--error" *ngIf="scannerError && !showActions">
@@ -63,52 +66,52 @@
               <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
               <circle cx="12" cy="13" r="4"/>
             </svg>
-            <p>{{ scannerError }}</p>
-            <button type="button" class="scanner-card__retry" (click)="retryScanner()">إعادة المحاولة</button>
+            <p>{{ scannerError | translate }}</p>
+            <button type="button" class="scanner-card__retry" (click)="retryScanner()">{{ 'cashier.retry' | translate }}</button>
           </div>
 
           <div class="scan-actions-modal" *ngIf="showActions">
-            <p class="scan-actions-modal__title">تم مسح QR بنجاح</p>
-            <p class="scan-actions-modal__member">رقم العضو: #{{ scannedMemberId }}</p>
-            <p class="scan-actions-modal__prompt">اختر الإجراء</p>
+            <p class="scan-actions-modal__title">{{ 'cashier.scanSuccess' | translate }}</p>
+            <p class="scan-actions-modal__member">{{ 'cashier.memberNumber' | translate: { id: scannedMemberId } }}</p>
+            <p class="scan-actions-modal__prompt">{{ 'cashier.chooseAction' | translate }}</p>
             <div class="scan-actions-modal__buttons">
               <button type="button" class="scan-actions-modal__btn" (click)="applyAction('add30')">
                 <span class="scan-actions-modal__btn-value">+30</span>
-                <span class="scan-actions-modal__btn-label">إضافة 30</span>
+                <span class="scan-actions-modal__btn-label">{{ 'cashier.add30' | translate }}</span>
               </button>
               <button type="button" class="scan-actions-modal__btn" (click)="applyAction('add50')">
                 <span class="scan-actions-modal__btn-value">+50</span>
-                <span class="scan-actions-modal__btn-label">إضافة 50</span>
+                <span class="scan-actions-modal__btn-label">{{ 'cashier.add50' | translate }}</span>
               </button>
               <button type="button" class="scan-actions-modal__btn scan-actions-modal__btn--free" (click)="applyAction('freeWash')">
-                <span class="scan-actions-modal__btn-value">مجاناً</span>
-                <span class="scan-actions-modal__btn-label">غسلة مجانية</span>
+                <span class="scan-actions-modal__btn-value">{{ 'cashier.freeValue' | translate }}</span>
+                <span class="scan-actions-modal__btn-label">{{ 'cashier.freeWash' | translate }}</span>
               </button>
             </div>
-            <button type="button" class="scan-actions-modal__cancel" (click)="clearScan()">إلغاء</button>
+            <button type="button" class="scan-actions-modal__cancel" (click)="clearScan()">{{ 'cashier.cancel' | translate }}</button>
           </div>
         </div>
 
         <div class="scanner-card__steps">
           <div class="step">
             <span class="step__num">1</span>
-            <span class="step__text">اطلب من العميل فتح البطاقة الرقمية</span>
+            <span class="step__text">{{ 'cashier.step1' | translate }}</span>
           </div>
           <div class="step">
             <span class="step__num">2</span>
-            <span class="step__text">وجّه الكاميرا نحو QR داخل الإطار البرتقالي</span>
+            <span class="step__text">{{ 'cashier.step2' | translate }}</span>
           </div>
           <div class="step">
             <span class="step__num">3</span>
-            <span class="step__text">اختر: إضافة 30 أو 50 أو غسلة مجانية</span>
+            <span class="step__text">{{ 'cashier.step3' | translate }}</span>
           </div>
         </div>
 
         <div class="scan-result" *ngIf="actionMessage">
           <p class="scan-result__feedback" [class.scan-result__feedback--error]="actionError">
-            {{ actionMessage }}
+            {{ actionMessage | translate: actionMessageParams }}
           </p>
-          <button type="button" class="scan-result__clear" (click)="clearScan()">مسح عميل جديد</button>
+          <button type="button" class="scan-result__clear" (click)="clearScan()">{{ 'cashier.scanNext' | translate }}</button>
         </div>
       </section>
     </div>

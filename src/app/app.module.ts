@@ -9,6 +9,8 @@ import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { CashierComponent } from './pages/cashier/cashier.component';
+import { LanguageToggleComponent } from './components/language-toggle/language-toggle.component';
+import { TranslatePipe } from './pipes/translate.pipe';
 
 @NgModule({
   declarations: [
@@ -17,7 +19,9 @@ import { CashierComponent } from './pages/cashier/cashier.component';
     LoginComponent,
     RegisterComponent,
     DashboardComponent,
-    CashierComponent
+    CashierComponent,
+    LanguageToggleComponent,
+    TranslatePipe
   ],
   imports: [
     BrowserModule,

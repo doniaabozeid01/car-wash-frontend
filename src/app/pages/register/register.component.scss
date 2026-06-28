@@ -2,6 +2,14 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  position: relative;
+
+  &__lang {
+    position: absolute;
+    top: 20px;
+    inset-inline-end: 20px;
+    z-index: 2;
+  }
 
   &__bg {
     position: fixed;

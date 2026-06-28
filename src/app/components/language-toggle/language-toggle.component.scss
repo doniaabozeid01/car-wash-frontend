@@ -1,0 +1,34 @@
+.lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+
+  &__btn {
+    min-width: 44px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--text-secondary);
+    transition: background var(--transition), color var(--transition), box-shadow var(--transition);
+
+    &--active {
+      background: var(--brand-blue);
+      color: #ffffff;
+      box-shadow: var(--shadow-blue);
+    }
+  }
+
+  &--compact {
+    .lang-toggle__btn {
+      min-width: 38px;
+      padding: 5px 10px;
+      font-size: 0.6875rem;
+    }
+  }
+}

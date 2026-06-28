@@ -23,6 +23,7 @@ export class CashierComponent implements OnInit, AfterViewInit, OnDestroy {
   scanTime = '';
   showActions = false;
   actionMessage = '';
+  actionMessageParams: Record<string, string | number> = {};
   actionError = false;
 
   private scanner: Html5Qrcode | null = null;
@@ -189,28 +190,28 @@ export class CashierComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private mapScannerError(error: unknown): string {
     if (error instanceof DOMException && error.name === 'NotAllowedError') {
-      return 'تم رفض إذن الكاميرا. اسمح بالوصول من إعدادات المتصفح ثم اضغط إعادة المحاولة.';
+      return 'cashier.errorPermission';
     }
 
     const code = error instanceof Error ? error.message : 'CAMERA_FAILED';
 
     if (code === 'HTTPS_REQUIRED') {
-      return 'الكاميرا تحتاج اتصال آمن (HTTPS). افتح الموقع عبر https أو localhost.';
+      return 'cashier.errorHttps';
     }
 
     if (code === 'NOT_SUPPORTED') {
-      return 'المتصفح لا يدعم الكاميرا. جرّب Chrome أو Safari على الموبايل.';
+      return 'cashier.errorNotSupported';
     }
 
     if (code === 'ELEMENT_MISSING') {
-      return 'تعذّر تحميل الماسح. اضغط إعادة المحاولة.';
+      return 'cashier.errorElementMissing';
     }
 
     if (/NotAllowedError|Permission/i.test(code)) {
-      return 'تم رفض إذن الكاميرا. اسمح بالوصول من إعدادات المتصفح ثم اضغط إعادة المحاولة.';
+      return 'cashier.errorPermission';
     }
 
-    return 'تعذّر فتح الكاميرا. تأكد من الإذن ثم اضغط إعادة المحاولة.';
+    return 'cashier.errorGeneric';
   }
 
   private waitForScannerElement(): Promise<void> {
@@ -249,6 +250,7 @@ export class CashierComponent implements OnInit, AfterViewInit, OnDestroy {
       this.scanTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       this.showActions = true;
       this.actionMessage = '';
+      this.actionMessageParams = {};
       this.actionError = false;
       this.scannerActive = false;
       this.cdr.detectChanges();
@@ -263,17 +265,24 @@ export class CashierComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (action === 'add30') {
       const points = this.rewards.addPoints(30, memberId);
-      this.actionMessage = `تمت إضافة 30 نقطة. رصيد العميل الآن ${points} نقطة.`;
+      this.actionMessage = 'cashier.successAdd30';
+      this.actionMessageParams = { points };
     } else if (action === 'add50') {
       const points = this.rewards.addPoints(50, memberId);
-      this.actionMessage = `تمت إضافة 50 نقطة. رصيد العميل الآن ${points} نقطة.`;
+      this.actionMessage = 'cashier.successAdd50';
+      this.actionMessageParams = { points };
     } else {
       const result = this.rewards.redeemFreeWash(memberId);
       if (result.success) {
-        this.actionMessage = `تم استبدال غسلة مجانية. رصيد العميل الآن ${result.points} نقطة.`;
+        this.actionMessage = 'cashier.successFreeWash';
+        this.actionMessageParams = { points: result.points };
       } else {
         this.actionError = true;
-        this.actionMessage = `النقاط غير كافية للغسلة المجانية (${result.points} / ${this.rewards.getFreeWashGoal()}).`;
+        this.actionMessage = 'cashier.errorInsufficientPoints';
+        this.actionMessageParams = {
+          current: result.points,
+          goal: this.rewards.getFreeWashGoal()
+        };
         return;
       }
     }
@@ -290,6 +299,7 @@ export class CashierComponent implements OnInit, AfterViewInit, OnDestroy {
       scanTime: '',
       showActions: false,
       actionMessage: '',
+      actionMessageParams: {},
       actionError: false,
       scannerLoading: true
     });
@@ -304,7 +314,7 @@ export class CashierComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private updateState(partial: Partial<Pick<CashierComponent,
     'scannerActive' | 'scannerLoading' | 'scannerError' | 'lastScan' |
-    'scannedMemberId' | 'scanTime' | 'showActions' | 'actionMessage' | 'actionError'
+    'scannedMemberId' | 'scanTime' | 'showActions' | 'actionMessage' | 'actionMessageParams' | 'actionError'
   >>): void {
     Object.assign(this, partial);
     this.cdr.detectChanges();

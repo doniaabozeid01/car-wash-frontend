@@ -1,37 +1,40 @@
 <div class="register-page">
   <div class="register-page__bg"></div>
+  <div class="register-page__lang">
+    <app-language-toggle [compact]="true"></app-language-toggle>
+  </div>
 
   <main class="register-page__main">
     <div class="register-card glass-card">
-      <img src="assets/logo.png" alt="FULL CARS" class="register-card__logo">
-      <h2 class="register-card__title">Create Account</h2>
-      <p class="register-card__subtitle">Sign up to start earning rewards on every wash</p>
+      <img src="assets/logo.png" [alt]="'common.brand' | translate" class="register-card__logo">
+      <h2 class="register-card__title">{{ 'register.title' | translate }}</h2>
+      <p class="register-card__subtitle">{{ 'register.subtitle' | translate }}</p>
 
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-card__form">
         <div class="form-field">
-          <label for="fullName">Full Name</label>
+          <label for="fullName">{{ 'register.fullName' | translate }}</label>
           <div class="input-wrapper">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
               <circle cx="12" cy="7" r="4"/>
             </svg>
-            <input id="fullName" type="text" formControlName="fullName" placeholder="Johnathan Doe">
+            <input id="fullName" type="text" formControlName="fullName" [placeholder]="'register.fullNamePlaceholder' | translate">
           </div>
         </div>
 
         <div class="form-field">
-          <label for="regPhone">Phone Number</label>
+          <label for="regPhone">{{ 'common.phone' | translate }}</label>
           <div class="input-wrapper">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <rect x="5" y="2" width="14" height="20" rx="2"/>
               <line x1="12" y1="18" x2="12" y2="18.01"/>
             </svg>
-            <input id="regPhone" type="tel" formControlName="phone" placeholder="+1 (555) 000-0000">
+            <input id="regPhone" type="tel" formControlName="phone" [placeholder]="'register.phonePlaceholder' | translate">
           </div>
         </div>
 
         <div class="form-field">
-          <label for="regPassword">Password</label>
+          <label for="regPassword">{{ 'common.password' | translate }}</label>
           <div class="input-wrapper">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <rect x="3" y="11" width="18" height="11" rx="2"/>
@@ -43,14 +46,20 @@
 
         <label class="register-card__terms">
           <input type="checkbox" formControlName="agreeTerms">
-          <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</span>
+          <span>
+            {{ 'register.termsPrefix' | translate }}
+            <a href="#">{{ 'register.termsOfService' | translate }}</a>
+            {{ 'register.termsAnd' | translate }}
+            <a href="#">{{ 'register.privacyPolicy' | translate }}</a>.
+          </span>
         </label>
 
-        <button type="submit" class="btn-gold" [disabled]="registerForm.invalid">Create Account</button>
+        <button type="submit" class="btn-gold" [disabled]="registerForm.invalid">{{ 'register.submit' | translate }}</button>
       </form>
 
       <p class="register-card__signin">
-        Already a member? <a routerLink="/login">SIGN IN</a>
+        {{ 'register.signInPrompt' | translate }}
+        <a routerLink="/login">{{ 'register.signIn' | translate }}</a>
       </p>
     </div>
   </main>

@@ -38,7 +38,7 @@ export class LoginComponent implements OnInit {
     const account = this.auth.login(phone, password);
 
     if (!account) {
-      this.loginError = 'Invalid phone number or password.';
+      this.loginError = 'login.error';
       return;
     }
 

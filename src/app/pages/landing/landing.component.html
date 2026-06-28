@@ -1,15 +1,18 @@
 <div class="landing" [class.landing--exiting]="exiting">
   <div class="landing__glow"></div>
   <div class="landing__shimmer" [class.landing__shimmer--active]="exiting"></div>
+  <div class="landing__lang">
+    <app-language-toggle [compact]="true"></app-language-toggle>
+  </div>
 
   <div
     class="landing__content"
     [class.landing__content--exit]="exiting">
     <div class="landing__logo-box">
-      <img src="assets/logo.png" alt="FULL CARS" class="landing__logo">
+      <img src="assets/logo.png" [alt]="'common.brand' | translate" class="landing__logo">
     </div>
 
-    <p class="landing__tagline">Premium Auto Care Rewards</p>
+    <p class="landing__tagline">{{ 'landing.tagline' | translate }}</p>
 
     <div class="landing__loader">
       <div class="landing__loader-track">

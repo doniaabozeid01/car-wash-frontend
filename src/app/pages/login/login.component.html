@@ -1,15 +1,18 @@
 <div class="login-page" [class.login-page--enter]="fromSplash">
   <div class="login-page__bg"></div>
+  <div class="login-page__lang">
+    <app-language-toggle [compact]="true"></app-language-toggle>
+  </div>
 
   <main class="login-page__main">
     <div class="login-card glass-card" [class.login-card--enter]="fromSplash">
-      <img src="assets/logo.png" alt="FULL CARS" class="login-card__logo">
-      <h1 class="login-card__title">Welcome Back</h1>
-      <p class="login-card__subtitle">Sign in to manage your vehicle services</p>
+      <img src="assets/logo.png" [alt]="'common.brand' | translate" class="login-card__logo">
+      <h1 class="login-card__title">{{ 'login.title' | translate }}</h1>
+      <p class="login-card__subtitle">{{ 'login.subtitle' | translate }}</p>
 
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-card__form">
         <div class="form-field">
-          <label for="phone">Phone Number</label>
+          <label for="phone">{{ 'common.phone' | translate }}</label>
           <div class="input-wrapper">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <rect x="5" y="2" width="14" height="20" rx="2"/>
@@ -20,7 +23,7 @@
         </div>
 
         <div class="form-field">
-          <label for="password">Password</label>
+          <label for="password">{{ 'common.password' | translate }}</label>
           <div class="input-wrapper">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <rect x="3" y="11" width="18" height="11" rx="2"/>
@@ -30,10 +33,10 @@
           </div>
         </div>
 
-        <p class="login-card__error" *ngIf="loginError">{{ loginError }}</p>
+        <p class="login-card__error" *ngIf="loginError">{{ loginError | translate }}</p>
 
         <button type="submit" class="btn-gold login-card__submit" [disabled]="loginForm.invalid">
-          Sign In
+          {{ 'login.signIn' | translate }}
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="5" y1="12" x2="19" y2="12"/>
             <polyline points="12 5 19 12 12 19"/>
@@ -42,15 +45,15 @@
       </form>
 
       <p class="login-card__register">
-        Don't have an account?
-        <a routerLink="/register">Register</a>
+        {{ 'login.noAccount' | translate }}
+        <a routerLink="/register">{{ 'login.register' | translate }}</a>
       </p>
 
       <div class="login-card__divider"></div>
 
       <p class="login-card__note">
         <span class="login-card__star">★</span>
-        Earn points every time you wash.
+        {{ 'login.note' | translate }}
       </p>
     </div>
   </main>
