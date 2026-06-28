@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 import { LanguageService } from './language.service';
 
 @Injectable({ providedIn: 'root' })
@@ -49,6 +50,9 @@ export class SeoService {
     this.meta.updateTag({ property: 'og:url', content: pageUrl });
     this.meta.updateTag({ property: 'og:image', content: imageUrl });
     this.meta.updateTag({ property: 'og:image:secure_url', content: imageUrl });
+    this.meta.updateTag({ property: 'og:image:type', content: 'image/png' });
+    this.meta.updateTag({ property: 'og:image:width', content: '1200' });
+    this.meta.updateTag({ property: 'og:image:height', content: '630' });
     this.meta.updateTag({ property: 'og:image:alt', content: imageAlt });
     this.meta.updateTag({ property: 'og:locale', content: this.language.current === 'ar' ? 'ar_EG' : 'en_US' });
     this.meta.updateTag({
@@ -80,19 +84,19 @@ export class SeoService {
   }
 
   private getPageUrl(): string {
-    if (typeof window === 'undefined') {
-      return 'https://fullcars.com';
+    if (typeof window !== 'undefined' && window.location.origin) {
+      return `${window.location.origin}${this.router.url.split('?')[0] || '/'}`;
     }
 
-    return `${window.location.origin}${this.router.url.split('?')[0] || '/'}`;
+    return environment.siteUrl;
   }
 
   private getShareImageUrl(): string {
-    if (typeof window === 'undefined') {
-      return `https://fullcars.com${this.shareImagePath}`;
-    }
+    const baseUrl = typeof window !== 'undefined' && window.location.origin
+      ? window.location.origin
+      : environment.siteUrl;
 
-    return `${window.location.origin}${this.shareImagePath}`;
+    return `${baseUrl}${this.shareImagePath}`;
   }
 
   private updateCanonical(url: string): void {

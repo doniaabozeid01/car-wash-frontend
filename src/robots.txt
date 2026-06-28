@@ -6,4 +6,4 @@ Allow: /register
 Disallow: /dashboard
 Disallow: /cashier
 
-Sitemap: /sitemap.xml
+Sitemap: https://car-wash-psi-rosy.vercel.app/sitemap.xml
