@@ -8,7 +8,8 @@ export const TRANSLATIONS = {
       brand: 'FULL CARS',
       logout: 'Logout',
       phone: 'Phone Number',
-      password: 'Password'
+      password: 'Password',
+      copyright: '© {{year}} FULL CARS. Produced by DM Solution.'
     },
     lang: {
       en: 'EN',
@@ -106,7 +107,8 @@ export const TRANSLATIONS = {
       brand: 'FULL CARS',
       logout: 'تسجيل الخروج',
       phone: 'رقم الهاتف',
-      password: 'كلمة المرور'
+      password: 'كلمة المرور',
+      copyright: '© {{year}} FULL CARS. من إنتاج شركة DM Solution.'
     },
     lang: {
       en: 'EN',

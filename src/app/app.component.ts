@@ -8,6 +8,8 @@ import { SeoService } from './services/seo.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
+  currentYear = new Date().getFullYear();
+
   constructor(
     private language: LanguageService,
     private seo: SeoService

@@ -2,3 +2,29 @@
   display: block;
   min-height: 100vh;
 }
+
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-shell__main {
+  flex: 1;
+}
+
+.site-footer {
+  padding: 16px 20px 20px;
+  text-align: center;
+  border-top: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(8px);
+
+  &__text {
+    margin: 0;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+    letter-spacing: 0.02em;
+  }
+}

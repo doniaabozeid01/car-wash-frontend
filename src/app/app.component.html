@@ -1,1 +1,11 @@
-<router-outlet></router-outlet>
+<div class="app-shell">
+  <main class="app-shell__main">
+    <router-outlet></router-outlet>
+  </main>
+
+  <footer class="site-footer">
+    <p class="site-footer__text">
+      {{ 'common.copyright' | translate: { year: currentYear } }}
+    </p>
+  </footer>
+</div>
