@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Html5Qrcode, Html5QrcodeCameraScanConfig } from 'html5-qrcode';
 import { AuthAccount, AuthService } from '../../services/auth.service';
@@ -19,6 +19,7 @@ export class CashierComponent implements OnInit, AfterViewInit, OnDestroy {
   scannerLoading = true;
   scannerError = '';
   lastScan = '';
+  scannedMemberId = '';
   scanTime = '';
   showActions = false;
   actionMessage = '';
@@ -27,11 +28,14 @@ export class CashierComponent implements OnInit, AfterViewInit, OnDestroy {
   private scanner: Html5Qrcode | null = null;
   private scanLock = false;
   private viewReady = false;
+  private startingScanner = false;
 
   constructor(
     private auth: AuthService,
     private router: Router,
-    private rewards: RewardsService
+    private rewards: RewardsService,
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -64,81 +68,149 @@ export class CashierComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private async restartScanner(): Promise<void> {
     await this.stopScanner();
-    this.scannerError = '';
-    this.scannerLoading = true;
+    this.updateState({
+      scannerError: '',
+      scannerLoading: true,
+      showActions: false,
+      lastScan: '',
+      scannedMemberId: ''
+    });
+    this.scanLock = false;
     await this.startScanner();
   }
 
   private async startScanner(): Promise<void> {
-    if (!this.viewReady || this.scanner || this.showActions) {
+    if (!this.viewReady || this.startingScanner || this.scanner?.isScanning || this.showActions) {
       return;
     }
 
-    await this.waitForScannerElement();
-
-    const element = document.getElementById(CashierComponent.SCANNER_ELEMENT_ID);
-    if (!element) {
-      this.scannerLoading = false;
-      this.scannerError = 'Scanner not ready. Tap Retry.';
-      return;
-    }
-
-    this.scanner = new Html5Qrcode(CashierComponent.SCANNER_ELEMENT_ID);
-    const scanConfig: Html5QrcodeCameraScanConfig = {
-      fps: 10,
-      qrbox: (viewfinderWidth, viewfinderHeight) => {
-        const size = Math.min(viewfinderWidth, viewfinderHeight) * 0.72;
-        return { width: size, height: size };
-      }
-    };
-
-    const cameraConfigs: Array<string | { facingMode: string }> = [];
+    this.startingScanner = true;
+    this.updateState({ scannerLoading: true, scannerError: '' });
 
     try {
-      const rearCameraId = await this.getRearCameraId();
-      if (rearCameraId) {
-        cameraConfigs.push(rearCameraId);
+      if (!window.isSecureContext) {
+        throw new Error('HTTPS_REQUIRED');
       }
-    } catch {
-      // Camera enumeration may fail before permission is granted.
-    }
 
-    cameraConfigs.push({ facingMode: 'environment' });
-
-    for (const camera of cameraConfigs) {
-      try {
-        await this.scanner.start(
-          camera,
-          scanConfig,
-          (decodedText) => this.onScanSuccess(decodedText),
-          () => undefined
-        );
-        this.scannerActive = true;
-        this.scannerError = '';
-        this.scannerLoading = false;
-        return;
-      } catch {
-        await this.stopScanner();
-        this.scanner = new Html5Qrcode(CashierComponent.SCANNER_ELEMENT_ID);
+      if (!navigator.mediaDevices?.getUserMedia) {
+        throw new Error('NOT_SUPPORTED');
       }
-    }
 
-    this.scannerActive = false;
-    this.scannerLoading = false;
-    this.scannerError = 'Camera access denied. Allow permission in your browser, then tap Retry.';
+      await this.waitForScannerElement();
+
+      const element = document.getElementById(CashierComponent.SCANNER_ELEMENT_ID);
+      if (!element) {
+        throw new Error('ELEMENT_MISSING');
+      }
+
+      await this.requestCameraPermission();
+      await this.stopScanner();
+
+      this.scanner = new Html5Qrcode(CashierComponent.SCANNER_ELEMENT_ID, false);
+      const scanConfig: Html5QrcodeCameraScanConfig = {
+        fps: 10,
+        qrbox: { width: 250, height: 250 },
+        aspectRatio: 1.777778,
+        disableFlip: false
+      };
+
+      const cameraId = await this.resolveRearCameraId();
+      const cameraConfigs: Array<string | { facingMode: string }> = [{ facingMode: 'environment' }];
+      if (cameraId) {
+        cameraConfigs.push(cameraId);
+      }
+      cameraConfigs.push({ facingMode: 'user' });
+
+      let started = false;
+      let lastError = '';
+
+      for (const camera of cameraConfigs) {
+        try {
+          await this.scanner.start(
+            camera,
+            scanConfig,
+            (decodedText) => this.onScanSuccess(decodedText),
+            () => undefined
+          );
+          started = true;
+          break;
+        } catch (error) {
+          lastError = error instanceof Error ? error.message : 'CAMERA_FAILED';
+          await this.stopScanner();
+          this.scanner = new Html5Qrcode(CashierComponent.SCANNER_ELEMENT_ID, false);
+        }
+      }
+
+      if (!started) {
+        throw new Error(lastError || 'CAMERA_FAILED');
+      }
+
+      this.updateState({
+        scannerActive: true,
+        scannerLoading: false,
+        scannerError: ''
+      });
+    } catch (error) {
+      this.updateState({
+        scannerActive: false,
+        scannerLoading: false,
+        scannerError: this.mapScannerError(error)
+      });
+    } finally {
+      this.startingScanner = false;
+    }
   }
 
-  private async getRearCameraId(): Promise<string | null> {
+  private async requestCameraPermission(): Promise<void> {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: { ideal: 'environment' },
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      },
+      audio: false
+    });
+
+    stream.getTracks().forEach((track) => track.stop());
+  }
+
+  private async resolveRearCameraId(): Promise<string> {
     const cameras = await Html5Qrcode.getCameras();
     if (!cameras.length) {
-      return null;
+      return '';
     }
 
     const rearCamera = cameras.find((camera) =>
       /back|rear|environment|خلف/i.test(camera.label)
     );
 
-    return rearCamera?.id ?? cameras[cameras.length - 1]?.id ?? null;
+    return rearCamera?.id ?? cameras[cameras.length - 1]?.id ?? '';
+  }
+
+  private mapScannerError(error: unknown): string {
+    if (error instanceof DOMException && error.name === 'NotAllowedError') {
+      return 'تم رفض إذن الكاميرا. اسمح بالوصول من إعدادات المتصفح ثم اضغط إعادة المحاولة.';
+    }
+
+    const code = error instanceof Error ? error.message : 'CAMERA_FAILED';
+
+    if (code === 'HTTPS_REQUIRED') {
+      return 'الكاميرا تحتاج اتصال آمن (HTTPS). افتح الموقع عبر https أو localhost.';
+    }
+
+    if (code === 'NOT_SUPPORTED') {
+      return 'المتصفح لا يدعم الكاميرا. جرّب Chrome أو Safari على الموبايل.';
+    }
+
+    if (code === 'ELEMENT_MISSING') {
+      return 'تعذّر تحميل الماسح. اضغط إعادة المحاولة.';
+    }
+
+    if (/NotAllowedError|Permission/i.test(code)) {
+      return 'تم رفض إذن الكاميرا. اسمح بالوصول من إعدادات المتصفح ثم اضغط إعادة المحاولة.';
+    }
+
+    return 'تعذّر فتح الكاميرا. تأكد من الإذن ثم اضغط إعادة المحاولة.';
   }
 
   private waitForScannerElement(): Promise<void> {
@@ -156,7 +228,7 @@ export class CashierComponent implements OnInit, AfterViewInit, OnDestroy {
       if (this.scanner.isScanning) {
         await this.scanner.stop();
       }
-      this.scanner.clear();
+      await this.scanner.clear();
     } catch {
       // Scanner may already be stopped during navigation.
     }
@@ -170,32 +242,38 @@ export class CashierComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    this.scanLock = true;
-    this.lastScan = decodedText;
-    this.scanTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    this.showActions = true;
-    this.actionMessage = '';
-    this.actionError = false;
+    this.ngZone.run(() => {
+      this.scanLock = true;
+      this.lastScan = decodedText;
+      this.scannedMemberId = this.extractMemberId(decodedText);
+      this.scanTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      this.showActions = true;
+      this.actionMessage = '';
+      this.actionError = false;
+      this.scannerActive = false;
+      this.cdr.detectChanges();
+    });
+
     void this.stopScanner();
   }
 
   applyAction(action: ScanAction): void {
-    const memberId = this.extractMemberId(this.lastScan);
+    const memberId = this.scannedMemberId || this.extractMemberId(this.lastScan);
     this.actionError = false;
 
     if (action === 'add30') {
       const points = this.rewards.addPoints(30, memberId);
-      this.actionMessage = `+30 points applied. Customer now has ${points} pts.`;
+      this.actionMessage = `تمت إضافة 30 نقطة. رصيد العميل الآن ${points} نقطة.`;
     } else if (action === 'add50') {
       const points = this.rewards.addPoints(50, memberId);
-      this.actionMessage = `+50 points applied. Customer now has ${points} pts.`;
+      this.actionMessage = `تمت إضافة 50 نقطة. رصيد العميل الآن ${points} نقطة.`;
     } else {
       const result = this.rewards.redeemFreeWash(memberId);
       if (result.success) {
-        this.actionMessage = `Free wash redeemed. Customer now has ${result.points} pts.`;
+        this.actionMessage = `تم استبدال غسلة مجانية. رصيد العميل الآن ${result.points} نقطة.`;
       } else {
         this.actionError = true;
-        this.actionMessage = `Not enough points for free wash (${result.points} / ${this.rewards.getFreeWashGoal()}).`;
+        this.actionMessage = `النقاط غير كافية للغسلة المجانية (${result.points} / ${this.rewards.getFreeWashGoal()}).`;
         return;
       }
     }
@@ -206,19 +284,29 @@ export class CashierComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   clearScan(): void {
-    this.lastScan = '';
-    this.scanTime = '';
-    this.showActions = false;
-    this.actionMessage = '';
-    this.actionError = false;
+    this.updateState({
+      lastScan: '',
+      scannedMemberId: '',
+      scanTime: '',
+      showActions: false,
+      actionMessage: '',
+      actionError: false,
+      scannerLoading: true
+    });
     this.scanLock = false;
-    if (!this.scannerActive && !this.scannerLoading) {
-      void this.startScanner();
-    }
+    void this.startScanner();
   }
 
   private extractMemberId(scanText: string): string {
     const match = scanText.match(/(\d{3}-\d{3})/);
     return match ? match[1] : '772-910';
+  }
+
+  private updateState(partial: Partial<Pick<CashierComponent,
+    'scannerActive' | 'scannerLoading' | 'scannerError' | 'lastScan' |
+    'scannedMemberId' | 'scanTime' | 'showActions' | 'actionMessage' | 'actionError'
+  >>): void {
+    Object.assign(this, partial);
+    this.cdr.detectChanges();
   }
 }

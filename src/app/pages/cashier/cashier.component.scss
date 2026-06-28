@@ -207,21 +207,7 @@
     inset: 0;
     width: 100%;
     height: 100%;
-
-    ::ng-deep video {
-      width: 100% !important;
-      height: 100% !important;
-      object-fit: cover !important;
-      display: block !important;
-    }
-
-    ::ng-deep #qr-shaded-region {
-      border-color: rgba(245, 130, 32, 0.5) !important;
-    }
-
-    ::ng-deep img[alt='Info icon'] {
-      display: none !important;
-    }
+    min-height: 100%;
   }
 
   &__overlay {
@@ -345,6 +331,101 @@
     color: var(--text-secondary);
     line-height: 1.5;
     padding-top: 4px;
+  }
+}
+
+.scan-actions-modal {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.96);
+  text-align: center;
+
+  &__title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--brand-blue);
+  }
+
+  &__member {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--brand-orange);
+    margin-bottom: 8px;
+  }
+
+  &__prompt {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+  }
+
+  &__buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    width: 100%;
+    max-width: 420px;
+  }
+
+  &__btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 18px 10px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    transition: border-color var(--transition), transform var(--transition), background var(--transition);
+
+    &:hover {
+      border-color: var(--border-gold);
+      background: rgba(245, 130, 32, 0.08);
+      transform: translateY(-2px);
+    }
+
+    &--free {
+      background: linear-gradient(135deg, rgba(245, 130, 32, 0.15) 0%, rgba(245, 130, 32, 0.05) 100%);
+      border-color: var(--border-gold);
+
+      .scan-actions-modal__btn-value {
+        color: var(--brand-orange);
+      }
+    }
+  }
+
+  &__btn-value {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--brand-blue);
+    line-height: 1.2;
+  }
+
+  &__btn-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  &__cancel {
+    margin-top: 8px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    padding: 8px 16px;
+
+    &:hover {
+      color: var(--brand-blue);
+    }
   }
 }
 

@@ -34,18 +34,18 @@
         <div class="scanner-card__head">
           <div>
             <h2 class="scanner-card__title">QR Scanner</h2>
-            <p class="scanner-card__subtitle">Scan customer digital pass to register the visit</p>
+            <p class="scanner-card__subtitle">وجّه الكاميرا الخلفية نحو QR العميل</p>
           </div>
           <div class="scanner-card__pulse" *ngIf="scannerActive">
             <span></span>
-            Scanner Active
+            الكاميرا شغّالة
           </div>
         </div>
 
         <div class="scanner-card__viewport" [class.scanner-card__viewport--live]="scannerActive">
           <div id="cashier-qr-reader" class="scanner-card__reader"></div>
 
-          <div class="scanner-card__overlay" *ngIf="scannerActive">
+          <div class="scanner-card__overlay" *ngIf="scannerActive && !showActions">
             <span class="scanner-card__corner scanner-card__corner--tl"></span>
             <span class="scanner-card__corner scanner-card__corner--tr"></span>
             <span class="scanner-card__corner scanner-card__corner--bl"></span>
@@ -53,66 +53,62 @@
             <div class="scanner-card__scanline"></div>
           </div>
 
-          <div class="scanner-card__state" *ngIf="scannerLoading">
+          <div class="scanner-card__state" *ngIf="scannerLoading && !showActions">
             <div class="scanner-card__spinner"></div>
-            <p>Starting camera...</p>
+            <p>جاري فتح الكاميرا...</p>
           </div>
 
-          <div class="scanner-card__state scanner-card__state--error" *ngIf="scannerError">
+          <div class="scanner-card__state scanner-card__state--error" *ngIf="scannerError && !showActions">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
               <circle cx="12" cy="13" r="4"/>
             </svg>
             <p>{{ scannerError }}</p>
-            <button type="button" class="scanner-card__retry" (click)="retryScanner()">Retry Camera</button>
+            <button type="button" class="scanner-card__retry" (click)="retryScanner()">إعادة المحاولة</button>
+          </div>
+
+          <div class="scan-actions-modal" *ngIf="showActions">
+            <p class="scan-actions-modal__title">تم مسح QR بنجاح</p>
+            <p class="scan-actions-modal__member">رقم العضو: #{{ scannedMemberId }}</p>
+            <p class="scan-actions-modal__prompt">اختر الإجراء</p>
+            <div class="scan-actions-modal__buttons">
+              <button type="button" class="scan-actions-modal__btn" (click)="applyAction('add30')">
+                <span class="scan-actions-modal__btn-value">+30</span>
+                <span class="scan-actions-modal__btn-label">إضافة 30</span>
+              </button>
+              <button type="button" class="scan-actions-modal__btn" (click)="applyAction('add50')">
+                <span class="scan-actions-modal__btn-value">+50</span>
+                <span class="scan-actions-modal__btn-label">إضافة 50</span>
+              </button>
+              <button type="button" class="scan-actions-modal__btn scan-actions-modal__btn--free" (click)="applyAction('freeWash')">
+                <span class="scan-actions-modal__btn-value">مجاناً</span>
+                <span class="scan-actions-modal__btn-label">غسلة مجانية</span>
+              </button>
+            </div>
+            <button type="button" class="scan-actions-modal__cancel" (click)="clearScan()">إلغاء</button>
           </div>
         </div>
 
         <div class="scanner-card__steps">
           <div class="step">
             <span class="step__num">1</span>
-            <span class="step__text">Ask customer to open their Digital Pass</span>
+            <span class="step__text">اطلب من العميل فتح البطاقة الرقمية</span>
           </div>
           <div class="step">
             <span class="step__num">2</span>
-            <span class="step__text">Align QR code inside the orange frame</span>
+            <span class="step__text">وجّه الكاميرا نحو QR داخل الإطار البرتقالي</span>
           </div>
           <div class="step">
             <span class="step__num">3</span>
-            <span class="step__text">Choose an action: Add 30, Add 50, or Free wash</span>
+            <span class="step__text">اختر: إضافة 30 أو 50 أو غسلة مجانية</span>
           </div>
         </div>
 
-        <div class="scan-result" *ngIf="lastScan">
-          <div class="scan-result__header">
-            <span class="scan-result__label">Customer Scanned</span>
-            <span class="scan-result__time">{{ scanTime }}</span>
-          </div>
-          <p class="scan-result__value">{{ lastScan }}</p>
-
-          <div class="scan-actions" *ngIf="showActions">
-            <p class="scan-actions__prompt">Select an action</p>
-            <div class="scan-actions__buttons">
-              <button type="button" class="scan-actions__btn" (click)="applyAction('add30')">
-                <span class="scan-actions__btn-value">+30</span>
-                <span class="scan-actions__btn-label">Add Points</span>
-              </button>
-              <button type="button" class="scan-actions__btn" (click)="applyAction('add50')">
-                <span class="scan-actions__btn-value">+50</span>
-                <span class="scan-actions__btn-label">Add Points</span>
-              </button>
-              <button type="button" class="scan-actions__btn scan-actions__btn--free" (click)="applyAction('freeWash')">
-                <span class="scan-actions__btn-value">Free</span>
-                <span class="scan-actions__btn-label">Wash</span>
-              </button>
-            </div>
-          </div>
-
-          <p class="scan-result__feedback" *ngIf="actionMessage" [class.scan-result__feedback--error]="actionError">
+        <div class="scan-result" *ngIf="actionMessage">
+          <p class="scan-result__feedback" [class.scan-result__feedback--error]="actionError">
             {{ actionMessage }}
           </p>
-
-          <button type="button" class="scan-result__clear" (click)="clearScan()">Scan Next Customer</button>
+          <button type="button" class="scan-result__clear" (click)="clearScan()">مسح عميل جديد</button>
         </div>
       </section>
     </div>
