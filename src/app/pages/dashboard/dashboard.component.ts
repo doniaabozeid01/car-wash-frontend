@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { UserProfile } from '../../models/auth.models';
 import { AuthService } from '../../services/auth.service';
+import { PointsHubService } from '../../services/points-hub.service';
 import { RewardsService } from '../../services/rewards.service';
 
 @Component({
@@ -20,12 +21,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
   qrCodeUrl = '';
   profileLoading = true;
 
-  private pointsSub?: Subscription;
+  private hubSub?: Subscription;
 
   constructor(
     private auth: AuthService,
     private router: Router,
-    private rewards: RewardsService
+    private rewards: RewardsService,
+    private pointsHub: PointsHubService
   ) {}
 
   ngOnInit(): void {
@@ -44,6 +46,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
         this.bindProfile(profile);
         this.profileLoading = false;
+        void this.startPointsHub(profile.id);
       },
       error: () => {
         this.router.navigate(['/login']);
@@ -52,7 +55,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.pointsSub?.unsubscribe();
+    this.hubSub?.unsubscribe();
+    void this.pointsHub.disconnect();
+  }
+
+  logout(): void {
+    void this.pointsHub.disconnect();
+    this.auth.logout();
+    this.router.navigate(['/login']);
   }
 
   private bindProfile(profile: UserProfile): void {
@@ -61,23 +71,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.qrCodeUrl = this.auth.getQrCodeDataUrl(profile);
     this.memberPoints = profile.points;
     this.updateProgress();
+  }
 
-    this.pointsSub?.unsubscribe();
-    this.pointsSub = this.rewards.pointsChanged$.subscribe((id) => {
-      if (id === profile.id) {
-        this.memberPoints = this.rewards.getPoints(profile.id);
-        this.updateProgress();
-      }
+  private async startPointsHub(memberId: string): Promise<void> {
+    this.hubSub?.unsubscribe();
+    this.hubSub = this.pointsHub.pointsUpdated$.subscribe((data) => {
+      this.memberPoints = data.points;
+      this.rewards.syncPoints(data.points, memberId);
+      this.auth.updateStoredPoints(data.points);
+      this.updateProgress();
     });
+
+    try {
+      await this.pointsHub.connect();
+    } catch {
+      // Profile still works; points refresh on next page load.
+    }
   }
 
   private updateProgress(): void {
     this.progressPercent = Math.min(100, (this.memberPoints / this.freeWashGoal) * 100);
     this.pointsRemaining = Math.max(0, this.freeWashGoal - this.memberPoints);
-  }
-
-  logout(): void {
-    this.auth.logout();
-    this.router.navigate(['/login']);
   }
 }

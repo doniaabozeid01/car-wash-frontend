@@ -47,7 +47,10 @@
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [],
+            "allowedCommonJsDependencies": [
+              "@microsoft/signalr"
+            ]
           },
           "configurations": {
             "production": {

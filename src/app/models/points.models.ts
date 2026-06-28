@@ -20,3 +20,9 @@ export interface ApplyPointsResult {
   points: number;
   fullName: string;
 }
+
+export interface PointsUpdatedEvent {
+  points: number;
+  change: number;
+  action: string;
+}

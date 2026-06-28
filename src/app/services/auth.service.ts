@@ -72,6 +72,15 @@ export class AuthService {
     localStorage.removeItem(EXPIRES_KEY);
   }
 
+  updateStoredPoints(points: number): void {
+    if (!this.currentUser) {
+      return;
+    }
+
+    this.currentUser = { ...this.currentUser, points };
+    localStorage.setItem(PROFILE_KEY, JSON.stringify(this.currentUser));
+  }
+
   getUser(): UserProfile | null {
     return this.currentUser;
   }
