@@ -2,10 +2,10 @@
   <header class="dashboard__header">
     <div class="dashboard__header-inner">
       <a routerLink="/" class="dashboard__brand">
-        <img src="assets/logo.png" alt="Aura Automotive" class="dashboard__logo">
+        <img src="assets/logo.png" alt="FULL CARS" class="dashboard__logo">
         <span class="dashboard__site-name">
-          <span class="dashboard__site-name-aura">Aura</span>
-          <span class="dashboard__site-name-auto">Automotive</span>
+          <span class="dashboard__site-name-full">FULL</span>
+          <span class="dashboard__site-name-cars">CARS</span>
         </span>
       </a>
       <button type="button" class="dashboard__logout" (click)="logout()">Logout</button>
@@ -43,11 +43,15 @@
           <h3 class="pass-card__title">Digital Pass</h3>
           <p class="pass-card__desc">Scan at the branch to collect or redeem points</p>
           <div class="pass-card__qr">
-            <div class="pass-card__qr-pattern"></div>
+            <img
+              *ngIf="qrCodeUrl"
+              [src]="qrCodeUrl"
+              alt="Member QR Code"
+              class="pass-card__qr-image">
           </div>
           <div class="pass-card__member">
             <span class="pass-card__member-label">Member ID</span>
-            <span class="pass-card__member-id">#772-910</span>
+            <span class="pass-card__member-id">#{{ memberId }}</span>
           </div>
         </div>
       </div>

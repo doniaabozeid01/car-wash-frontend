@@ -8,6 +8,7 @@ export interface AuthAccount {
   role: UserRole;
   name: string;
   displayPhone: string;
+  memberId: string;
 }
 
 const ACCOUNTS: AuthAccount[] = [
@@ -16,14 +17,16 @@ const ACCOUNTS: AuthAccount[] = [
     password: 'Dd@00000',
     role: 'user',
     name: 'Alexander',
-    displayPhone: '+20 111 976 3303'
+    displayPhone: '+20 111 976 3303',
+    memberId: '772-910'
   },
   {
     phone: '01221427766',
     password: 'Aa@00000',
     role: 'cashier',
     name: 'Cashier',
-    displayPhone: '+20 122 142 7766'
+    displayPhone: '+20 122 142 7766',
+    memberId: '000-001'
   }
 ];
 

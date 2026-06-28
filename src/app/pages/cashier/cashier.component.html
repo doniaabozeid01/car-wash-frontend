@@ -4,10 +4,10 @@
   <header class="cashier-page__header">
     <div class="cashier-page__header-inner">
       <a routerLink="/" class="cashier-page__brand">
-        <img src="assets/logo.png" alt="Aura Automotive" class="cashier-page__logo">
+        <img src="assets/logo.png" alt="FULL CARS" class="cashier-page__logo">
         <span class="cashier-page__site-name">
-          <span class="cashier-page__site-name-aura">Aura</span>
-          <span class="cashier-page__site-name-auto">Automotive</span>
+          <span class="cashier-page__site-name-full">FULL</span>
+          <span class="cashier-page__site-name-cars">CARS</span>
         </span>
       </a>
       <button type="button" class="cashier-page__logout" (click)="logout()">Logout</button>
@@ -27,17 +27,6 @@
             </svg>
             {{ cashier.displayPhone }}
           </p>
-        </div>
-
-        <div class="cashier-strip__meta">
-          <div class="cashier-strip__stat">
-            <span class="cashier-strip__stat-value">{{ scanCount }}</span>
-            <span class="cashier-strip__stat-label">Scans Today</span>
-          </div>
-          <div class="cashier-strip__status" [class.cashier-strip__status--live]="scannerActive">
-            <span class="cashier-strip__status-dot"></span>
-            {{ scannerActive ? 'Scanner Live' : (scannerLoading ? 'Starting...' : 'Camera Offline') }}
-          </div>
         </div>
       </section>
 
@@ -86,7 +75,7 @@
           </div>
           <div class="step">
             <span class="step__num">2</span>
-            <span class="step__text">Align QR code inside the golden frame</span>
+            <span class="step__text">Align QR code inside the orange frame</span>
           </div>
           <div class="step">
             <span class="step__num">3</span>

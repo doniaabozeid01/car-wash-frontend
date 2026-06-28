@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Html5Qrcode } from 'html5-qrcode';
+import { Html5Qrcode, Html5QrcodeCameraScanConfig } from 'html5-qrcode';
 import { AuthAccount, AuthService } from '../../services/auth.service';
 import { RewardsService } from '../../services/rewards.service';
 
@@ -20,13 +20,13 @@ export class CashierComponent implements OnInit, AfterViewInit, OnDestroy {
   scannerError = '';
   lastScan = '';
   scanTime = '';
-  scanCount = 0;
   showActions = false;
   actionMessage = '';
   actionError = false;
 
   private scanner: Html5Qrcode | null = null;
   private scanLock = false;
+  private viewReady = false;
 
   constructor(
     private auth: AuthService,
@@ -42,6 +42,7 @@ export class CashierComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
+    this.viewReady = true;
     if (this.cashier) {
       void this.startScanner();
     }
@@ -69,28 +70,46 @@ export class CashierComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private async startScanner(): Promise<void> {
-    if (this.scanner) {
+    if (!this.viewReady || this.scanner || this.showActions) {
+      return;
+    }
+
+    await this.waitForScannerElement();
+
+    const element = document.getElementById(CashierComponent.SCANNER_ELEMENT_ID);
+    if (!element) {
+      this.scannerLoading = false;
+      this.scannerError = 'Scanner not ready. Tap Retry.';
       return;
     }
 
     this.scanner = new Html5Qrcode(CashierComponent.SCANNER_ELEMENT_ID);
-    const configs = [
-      { facingMode: 'environment' },
-      { facingMode: 'user' }
-    ];
+    const scanConfig: Html5QrcodeCameraScanConfig = {
+      fps: 10,
+      qrbox: (viewfinderWidth, viewfinderHeight) => {
+        const size = Math.min(viewfinderWidth, viewfinderHeight) * 0.72;
+        return { width: size, height: size };
+      }
+    };
 
-    for (const camera of configs) {
+    const cameraConfigs: Array<string | { facingMode: string }> = [];
+
+    try {
+      const rearCameraId = await this.getRearCameraId();
+      if (rearCameraId) {
+        cameraConfigs.push(rearCameraId);
+      }
+    } catch {
+      // Camera enumeration may fail before permission is granted.
+    }
+
+    cameraConfigs.push({ facingMode: 'environment' });
+
+    for (const camera of cameraConfigs) {
       try {
         await this.scanner.start(
           camera,
-          {
-            fps: 12,
-            qrbox: (viewfinderWidth, viewfinderHeight) => {
-              const size = Math.min(viewfinderWidth, viewfinderHeight) * 0.68;
-              return { width: size, height: size };
-            },
-            aspectRatio: 1
-          },
+          scanConfig,
           (decodedText) => this.onScanSuccess(decodedText),
           () => undefined
         );
@@ -107,6 +126,25 @@ export class CashierComponent implements OnInit, AfterViewInit, OnDestroy {
     this.scannerActive = false;
     this.scannerLoading = false;
     this.scannerError = 'Camera access denied. Allow permission in your browser, then tap Retry.';
+  }
+
+  private async getRearCameraId(): Promise<string | null> {
+    const cameras = await Html5Qrcode.getCameras();
+    if (!cameras.length) {
+      return null;
+    }
+
+    const rearCamera = cameras.find((camera) =>
+      /back|rear|environment|خلف/i.test(camera.label)
+    );
+
+    return rearCamera?.id ?? cameras[cameras.length - 1]?.id ?? null;
+  }
+
+  private waitForScannerElement(): Promise<void> {
+    return new Promise((resolve) => {
+      requestAnimationFrame(() => resolve());
+    });
   }
 
   private async stopScanner(): Promise<void> {
@@ -135,7 +173,6 @@ export class CashierComponent implements OnInit, AfterViewInit, OnDestroy {
     this.scanLock = true;
     this.lastScan = decodedText;
     this.scanTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    this.scanCount += 1;
     this.showActions = true;
     this.actionMessage = '';
     this.actionError = false;
