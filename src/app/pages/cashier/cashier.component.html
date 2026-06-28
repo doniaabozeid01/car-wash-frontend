@@ -22,13 +22,13 @@
       <section class="cashier-strip">
         <div class="cashier-strip__info">
           <span class="cashier-strip__role">{{ 'cashier.portal' | translate }}</span>
-          <h1 class="cashier-strip__name">{{ cashier.name }}</h1>
+          <h1 class="cashier-strip__name">{{ cashier.fullName }}</h1>
           <p class="cashier-strip__phone">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <rect x="5" y="2" width="14" height="20" rx="2"/>
               <line x1="12" y1="18" x2="12" y2="18.01"/>
             </svg>
-            {{ cashier.displayPhone }}
+            {{ cashier.phoneNumber }}
           </p>
         </div>
       </section>
@@ -70,25 +70,32 @@
             <button type="button" class="scanner-card__retry" (click)="retryScanner()">{{ 'cashier.retry' | translate }}</button>
           </div>
 
-          <div class="scan-actions-modal" *ngIf="showActions">
+          <div class="scanner-card__state" *ngIf="scanValidating">
+            <div class="scanner-card__spinner"></div>
+            <p>{{ 'cashier.validatingScan' | translate }}</p>
+          </div>
+
+          <div class="scan-actions-modal" *ngIf="showActions && scannedCustomer">
             <p class="scan-actions-modal__title">{{ 'cashier.scanSuccess' | translate }}</p>
+            <p class="scan-actions-modal__member">{{ scannedCustomer.fullName }}</p>
             <p class="scan-actions-modal__member">{{ 'cashier.memberNumber' | translate: { id: scannedMemberId } }}</p>
+            <p class="scan-actions-modal__points">{{ 'cashier.currentPoints' | translate: { points: scannedCustomer.points } }}</p>
             <p class="scan-actions-modal__prompt">{{ 'cashier.chooseAction' | translate }}</p>
             <div class="scan-actions-modal__buttons">
-              <button type="button" class="scan-actions-modal__btn" (click)="applyAction('add30')">
+              <button type="button" class="scan-actions-modal__btn" [disabled]="actionLoading" (click)="applyAction('add30')">
                 <span class="scan-actions-modal__btn-value">+30</span>
                 <span class="scan-actions-modal__btn-label">{{ 'cashier.add30' | translate }}</span>
               </button>
-              <button type="button" class="scan-actions-modal__btn" (click)="applyAction('add50')">
+              <button type="button" class="scan-actions-modal__btn" [disabled]="actionLoading" (click)="applyAction('add50')">
                 <span class="scan-actions-modal__btn-value">+50</span>
                 <span class="scan-actions-modal__btn-label">{{ 'cashier.add50' | translate }}</span>
               </button>
-              <button type="button" class="scan-actions-modal__btn scan-actions-modal__btn--free" (click)="applyAction('freeWash')">
+              <button type="button" class="scan-actions-modal__btn scan-actions-modal__btn--free" [disabled]="actionLoading" (click)="applyAction('freeWash')">
                 <span class="scan-actions-modal__btn-value">{{ 'cashier.freeValue' | translate }}</span>
                 <span class="scan-actions-modal__btn-label">{{ 'cashier.freeWash' | translate }}</span>
               </button>
             </div>
-            <button type="button" class="scan-actions-modal__cancel" (click)="clearScan()">{{ 'cashier.cancel' | translate }}</button>
+            <button type="button" class="scan-actions-modal__cancel" [disabled]="actionLoading" (click)="clearScan()">{{ 'cashier.cancel' | translate }}</button>
           </div>
         </div>
 
@@ -109,7 +116,7 @@
 
         <div class="scan-result" *ngIf="actionMessage">
           <p class="scan-result__feedback" [class.scan-result__feedback--error]="actionError">
-            {{ actionMessage | translate: actionMessageParams }}
+            {{ actionMessage.startsWith('cashier.') ? (actionMessage | translate: actionMessageParams) : actionMessage }}
           </p>
           <button type="button" class="scan-result__clear" (click)="clearScan()">{{ 'cashier.scanNext' | translate }}</button>
         </div>

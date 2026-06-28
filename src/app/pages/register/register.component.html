@@ -54,7 +54,13 @@
           </span>
         </label>
 
-        <button type="submit" class="btn-gold" [disabled]="registerForm.invalid">{{ 'register.submit' | translate }}</button>
+        <p class="register-card__error" *ngIf="registerError">
+          {{ registerError.startsWith('register.') ? (registerError | translate) : registerError }}
+        </p>
+
+        <button type="submit" class="btn-gold" [disabled]="registerForm.invalid || isSubmitting">
+          {{ isSubmitting ? ('register.submitting' | translate) : ('register.submit' | translate) }}
+        </button>
       </form>
 
       <p class="register-card__signin">

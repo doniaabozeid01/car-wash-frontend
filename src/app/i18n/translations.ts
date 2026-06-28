@@ -31,10 +31,13 @@ export const TRANSLATIONS = {
       title: 'Welcome Back',
       subtitle: 'Sign in to manage your vehicle services',
       signIn: 'Sign In',
+      signingIn: 'Signing in...',
       noAccount: "Don't have an account?",
       register: 'Register',
       note: 'Earn points every time you wash.',
-      error: 'Invalid phone number or password.'
+      error: 'Invalid phone number or password.',
+      networkError: 'Cannot reach the server. Make sure the backend is running and restart with npm start.',
+      serverError: 'Something went wrong. Please try again.'
     },
     register: {
       title: 'Create Account',
@@ -47,6 +50,8 @@ export const TRANSLATIONS = {
       termsAnd: 'and',
       privacyPolicy: 'Privacy Policy',
       submit: 'Create Account',
+      submitting: 'Creating account...',
+      error: 'Could not create account. Phone may already be registered.',
       signInPrompt: 'Already a member?',
       signIn: 'SIGN IN'
     },
@@ -70,7 +75,9 @@ export const TRANSLATIONS = {
       openingCamera: 'Starting camera...',
       retry: 'Retry Camera',
       scanSuccess: 'QR scanned successfully',
+      validatingScan: 'Validating customer...',
       memberNumber: 'Member ID: #{{id}}',
+      currentPoints: 'Current balance: {{points}} pts',
       chooseAction: 'Choose an action',
       add30: 'Add 30',
       add50: 'Add 50',
@@ -89,7 +96,9 @@ export const TRANSLATIONS = {
       successAdd30: 'Added 30 points. Customer now has {{points}} pts.',
       successAdd50: 'Added 50 points. Customer now has {{points}} pts.',
       successFreeWash: 'Free wash redeemed. Customer now has {{points}} pts.',
-      errorInsufficientPoints: 'Not enough points for free wash ({{current}} / {{goal}}).'
+      errorInsufficientPoints: 'Not enough points for free wash ({{current}} / {{goal}}).',
+      errorScanFailed: 'Could not validate this QR code. Try again.',
+      errorApplyFailed: 'Could not apply this action. Please try again.'
     }
   },
   ar: {
@@ -120,10 +129,13 @@ export const TRANSLATIONS = {
       title: 'مرحباً بعودتك',
       subtitle: 'سجّل الدخول لإدارة خدمات سيارتك',
       signIn: 'تسجيل الدخول',
+      signingIn: 'جاري تسجيل الدخول...',
       noAccount: 'ليس لديك حساب؟',
       register: 'إنشاء حساب',
       note: 'اكسب نقاطاً في كل مرة تغسل فيها.',
-      error: 'رقم الهاتف أو كلمة المرور غير صحيحة.'
+      error: 'رقم الهاتف أو كلمة المرور غير صحيحة.',
+      networkError: 'تعذّر الاتصال بالسيرفر. تأكدي أن الـ backend شغّال وأعيدي تشغيل npm start.',
+      serverError: 'حدث خطأ. حاولي مرة أخرى.'
     },
     register: {
       title: 'إنشاء حساب',
@@ -136,6 +148,8 @@ export const TRANSLATIONS = {
       termsAnd: 'و',
       privacyPolicy: 'سياسة الخصوصية',
       submit: 'إنشاء حساب',
+      submitting: 'جاري إنشاء الحساب...',
+      error: 'تعذّر إنشاء الحساب. قد يكون رقم الهاتف مسجلاً مسبقاً.',
       signInPrompt: 'لديك حساب بالفعل؟',
       signIn: 'تسجيل الدخول'
     },
@@ -159,7 +173,9 @@ export const TRANSLATIONS = {
       openingCamera: 'جاري فتح الكاميرا...',
       retry: 'إعادة المحاولة',
       scanSuccess: 'تم مسح QR بنجاح',
+      validatingScan: 'جاري التحقق من العميل...',
       memberNumber: 'رقم العضو: #{{id}}',
+      currentPoints: 'الرصيد الحالي: {{points}} نقطة',
       chooseAction: 'اختر الإجراء',
       add30: 'إضافة 30',
       add50: 'إضافة 50',
@@ -178,7 +194,9 @@ export const TRANSLATIONS = {
       successAdd30: 'تمت إضافة 30 نقطة. رصيد العميل الآن {{points}} نقطة.',
       successAdd50: 'تمت إضافة 50 نقطة. رصيد العميل الآن {{points}} نقطة.',
       successFreeWash: 'تم استبدال غسلة مجانية. رصيد العميل الآن {{points}} نقطة.',
-      errorInsufficientPoints: 'النقاط غير كافية للغسلة المجانية ({{current}} / {{goal}}).'
+      errorInsufficientPoints: 'النقاط غير كافية للغسلة المجانية ({{current}} / {{goal}}).',
+      errorScanFailed: 'تعذّر التحقق من QR. حاول مرة أخرى.',
+      errorApplyFailed: 'تعذّر تنفيذ الإجراء. حاول مرة أخرى.'
     }
   }
 } as const;

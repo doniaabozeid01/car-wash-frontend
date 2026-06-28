@@ -1,10 +1,18 @@
 import { AfterViewInit, ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Html5Qrcode, Html5QrcodeCameraScanConfig } from 'html5-qrcode';
-import { AuthAccount, AuthService } from '../../services/auth.service';
-import { RewardsService } from '../../services/rewards.service';
+import { UserProfile } from '../../models/auth.models';
+import { PointsActionType, ScannedCustomer } from '../../models/points.models';
+import { AuthService } from '../../services/auth.service';
+import { PointsService } from '../../services/points.service';
 
 export type ScanAction = 'add30' | 'add50' | 'freeWash';
+
+const SCAN_ACTION_TO_API: Record<ScanAction, PointsActionType> = {
+  add30: PointsActionType.Add30,
+  add50: PointsActionType.Add50,
+  freeWash: PointsActionType.Subtract250
+};
 
 @Component({
   selector: 'app-cashier',
@@ -14,14 +22,16 @@ export type ScanAction = 'add30' | 'add50' | 'freeWash';
 export class CashierComponent implements OnInit, AfterViewInit, OnDestroy {
   private static readonly SCANNER_ELEMENT_ID = 'cashier-qr-reader';
 
-  cashier: AuthAccount | null = null;
+  cashier: UserProfile | null = null;
   scannerActive = false;
   scannerLoading = true;
   scannerError = '';
-  lastScan = '';
-  scannedMemberId = '';
+  scannedQrCode = '';
+  scannedCustomer: ScannedCustomer | null = null;
   scanTime = '';
   showActions = false;
+  scanValidating = false;
+  actionLoading = false;
   actionMessage = '';
   actionMessageParams: Record<string, string | number> = {};
   actionError = false;
@@ -34,14 +44,14 @@ export class CashierComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private auth: AuthService,
     private router: Router,
-    private rewards: RewardsService,
+    private points: PointsService,
     private ngZone: NgZone,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.cashier = this.auth.getUser();
-    if (!this.cashier || this.cashier.role !== 'cashier') {
+    if (!this.cashier || this.cashier.role !== 'cashier' || !this.auth.isLoggedIn()) {
       this.router.navigate(['/login']);
     }
   }
@@ -57,6 +67,10 @@ export class CashierComponent implements OnInit, AfterViewInit, OnDestroy {
     void this.stopScanner();
   }
 
+  get scannedMemberId(): string {
+    return this.scannedCustomer?.id?.slice(0, 8) ?? '';
+  }
+
   async logout(): Promise<void> {
     await this.stopScanner();
     this.auth.logout();
@@ -67,14 +81,87 @@ export class CashierComponent implements OnInit, AfterViewInit, OnDestroy {
     void this.restartScanner();
   }
 
+  applyAction(action: ScanAction): void {
+    if (!this.scannedQrCode || this.actionLoading) {
+      return;
+    }
+
+    this.actionLoading = true;
+    this.actionError = false;
+    this.actionMessage = '';
+
+    this.points.applyAction(this.scannedQrCode, SCAN_ACTION_TO_API[action]).subscribe({
+      next: (result) => {
+        this.actionLoading = false;
+        this.showActions = false;
+        this.scanLock = false;
+
+        if (this.scannedCustomer) {
+          this.scannedCustomer = { ...this.scannedCustomer, points: result.points };
+        }
+
+        if (action === 'add30') {
+          this.actionMessage = 'cashier.successAdd30';
+        } else if (action === 'add50') {
+          this.actionMessage = 'cashier.successAdd50';
+        } else {
+          this.actionMessage = 'cashier.successFreeWash';
+        }
+
+        this.actionMessageParams = { points: result.points };
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.actionLoading = false;
+        this.actionError = true;
+
+        const apiMessage = err?.error?.title || err?.error?.message || err?.error;
+        if (typeof apiMessage === 'string' && apiMessage.trim()) {
+          this.actionMessage = apiMessage;
+          this.actionMessageParams = {};
+        } else if (action === 'freeWash') {
+          this.actionMessage = 'cashier.errorInsufficientPoints';
+          this.actionMessageParams = {
+            current: this.scannedCustomer?.points ?? 0,
+            goal: 250
+          };
+        } else {
+          this.actionMessage = 'cashier.errorApplyFailed';
+          this.actionMessageParams = {};
+        }
+
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  clearScan(): void {
+    this.updateState({
+      scannedQrCode: '',
+      scannedCustomer: null,
+      scanTime: '',
+      showActions: false,
+      scanValidating: false,
+      actionLoading: false,
+      actionMessage: '',
+      actionMessageParams: {},
+      actionError: false,
+      scannerLoading: true
+    });
+    this.scanLock = false;
+    void this.startScanner();
+  }
+
   private async restartScanner(): Promise<void> {
     await this.stopScanner();
     this.updateState({
       scannerError: '',
       scannerLoading: true,
       showActions: false,
-      lastScan: '',
-      scannedMemberId: ''
+      scannedQrCode: '',
+      scannedCustomer: null,
+      scanValidating: false,
+      actionLoading: false
     });
     this.scanLock = false;
     await this.startScanner();
@@ -162,6 +249,54 @@ export class CashierComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  private onScanSuccess(decodedText: string): void {
+    if (this.scanLock || this.showActions || this.scanValidating) {
+      return;
+    }
+
+    this.ngZone.run(() => {
+      this.scanLock = true;
+      this.scannedQrCode = decodedText.trim();
+      this.scanValidating = true;
+      this.scanTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      this.actionMessage = '';
+      this.actionMessageParams = {};
+      this.actionError = false;
+      this.scannerActive = false;
+      this.cdr.detectChanges();
+    });
+
+    void this.stopScanner();
+
+    this.points.scanQrCode(decodedText).subscribe({
+      next: (customer) => {
+        this.ngZone.run(() => {
+          this.scannedCustomer = customer;
+          this.scanValidating = false;
+          this.showActions = true;
+          this.cdr.detectChanges();
+        });
+      },
+      error: (err) => {
+        this.ngZone.run(() => {
+          this.scanValidating = false;
+          this.scanLock = false;
+          this.actionError = true;
+
+          const apiMessage = err?.error?.title || err?.error?.message || err?.error;
+          this.actionMessage =
+            typeof apiMessage === 'string' && apiMessage.trim()
+              ? apiMessage
+              : 'cashier.errorScanFailed';
+          this.actionMessageParams = {};
+          this.scannedQrCode = '';
+          this.cdr.detectChanges();
+          void this.startScanner();
+        });
+      }
+    });
+  }
+
   private async requestCameraPermission(): Promise<void> {
     const stream = await navigator.mediaDevices.getUserMedia({
       video: {
@@ -238,83 +373,10 @@ export class CashierComponent implements OnInit, AfterViewInit, OnDestroy {
     this.scannerActive = false;
   }
 
-  private onScanSuccess(decodedText: string): void {
-    if (this.scanLock || this.showActions) {
-      return;
-    }
-
-    this.ngZone.run(() => {
-      this.scanLock = true;
-      this.lastScan = decodedText;
-      this.scannedMemberId = this.extractMemberId(decodedText);
-      this.scanTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      this.showActions = true;
-      this.actionMessage = '';
-      this.actionMessageParams = {};
-      this.actionError = false;
-      this.scannerActive = false;
-      this.cdr.detectChanges();
-    });
-
-    void this.stopScanner();
-  }
-
-  applyAction(action: ScanAction): void {
-    const memberId = this.scannedMemberId || this.extractMemberId(this.lastScan);
-    this.actionError = false;
-
-    if (action === 'add30') {
-      const points = this.rewards.addPoints(30, memberId);
-      this.actionMessage = 'cashier.successAdd30';
-      this.actionMessageParams = { points };
-    } else if (action === 'add50') {
-      const points = this.rewards.addPoints(50, memberId);
-      this.actionMessage = 'cashier.successAdd50';
-      this.actionMessageParams = { points };
-    } else {
-      const result = this.rewards.redeemFreeWash(memberId);
-      if (result.success) {
-        this.actionMessage = 'cashier.successFreeWash';
-        this.actionMessageParams = { points: result.points };
-      } else {
-        this.actionError = true;
-        this.actionMessage = 'cashier.errorInsufficientPoints';
-        this.actionMessageParams = {
-          current: result.points,
-          goal: this.rewards.getFreeWashGoal()
-        };
-        return;
-      }
-    }
-
-    this.showActions = false;
-    this.scanLock = false;
-    void this.startScanner();
-  }
-
-  clearScan(): void {
-    this.updateState({
-      lastScan: '',
-      scannedMemberId: '',
-      scanTime: '',
-      showActions: false,
-      actionMessage: '',
-      actionMessageParams: {},
-      actionError: false,
-      scannerLoading: true
-    });
-    this.scanLock = false;
-    void this.startScanner();
-  }
-
-  private extractMemberId(scanText: string): string {
-    const match = scanText.match(/(\d{3}-\d{3})/);
-    return match ? match[1] : '772-910';
-  }
-
   private updateState(partial: Partial<Pick<CashierComponent,
-    'scannerActive' | 'scannerLoading' | 'scannerError' | 'lastScan' |
-    'scannedMemberId' | 'scanTime' | 'showActions' | 'actionMessage' | 'actionMessageParams' | 'actionError'
+    'scannerActive' | 'scannerLoading' | 'scannerError' | 'scannedQrCode' |
+    'scannedCustomer' | 'scanTime' | 'showActions' | 'scanValidating' | 'actionLoading' |
+    'actionMessage' | 'actionMessageParams' | 'actionError'
   >>): void {
     Object.assign(this, partial);
     this.cdr.detectChanges();

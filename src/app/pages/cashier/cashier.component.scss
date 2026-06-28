@@ -364,6 +364,11 @@
     font-size: 0.9375rem;
     font-weight: 600;
     color: var(--brand-orange);
+  }
+
+  &__points {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
     margin-bottom: 8px;
   }
 

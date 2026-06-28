@@ -37,6 +37,10 @@ export class RewardsService {
     return FREE_WASH_COST;
   }
 
+  syncPoints(points: number, memberId: string): void {
+    this.setPoints(points, memberId);
+  }
+
   private setPoints(points: number, memberId: string): void {
     localStorage.setItem(this.storageKey(memberId), String(Math.max(0, points)));
     this.pointsChanged$.next(memberId);

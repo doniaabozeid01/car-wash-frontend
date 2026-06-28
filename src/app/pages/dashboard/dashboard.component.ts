@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import * as QRCode from 'qrcode';
 import { Subscription } from 'rxjs';
+import { UserProfile } from '../../models/auth.models';
 import { AuthService } from '../../services/auth.service';
 import { RewardsService } from '../../services/rewards.service';
 
@@ -11,13 +11,14 @@ import { RewardsService } from '../../services/rewards.service';
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit, OnDestroy {
-  memberPoints = 180;
+  memberPoints = 0;
   freeWashGoal = 250;
   progressPercent = 0;
   pointsRemaining = 0;
-  userName = 'Alexander';
-  memberId = '772-910';
+  userName = '';
+  memberId = '';
   qrCodeUrl = '';
+  profileLoading = true;
 
   private pointsSub?: Subscription;
 
@@ -28,42 +29,51 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    const user = this.auth.getUser();
-    if (!user || user.role !== 'user') {
+    if (!this.auth.isLoggedIn()) {
       this.router.navigate(['/login']);
       return;
     }
-    this.userName = user.name;
-    this.memberId = user.memberId;
+
     this.freeWashGoal = this.rewards.getFreeWashGoal();
-    this.refreshPoints();
-    this.pointsSub = this.rewards.pointsChanged$.subscribe((id) => {
-      if (id === this.memberId) {
-        this.refreshPoints();
+
+    this.auth.fetchProfile().subscribe({
+      next: (profile) => {
+        if (profile.role !== 'user') {
+          this.router.navigate(['/login']);
+          return;
+        }
+        this.bindProfile(profile);
+        this.profileLoading = false;
+      },
+      error: () => {
+        this.router.navigate(['/login']);
       }
     });
-    void this.generateQrCode();
   }
 
   ngOnDestroy(): void {
     this.pointsSub?.unsubscribe();
   }
 
-  private refreshPoints(): void {
-    this.memberPoints = this.rewards.getPoints(this.memberId);
-    this.progressPercent = Math.min(100, (this.memberPoints / this.freeWashGoal) * 100);
-    this.pointsRemaining = Math.max(0, this.freeWashGoal - this.memberPoints);
-  }
+  private bindProfile(profile: UserProfile): void {
+    this.userName = profile.fullName;
+    this.memberId = profile.id;
+    this.qrCodeUrl = this.auth.getQrCodeDataUrl(profile);
+    this.memberPoints = profile.points;
+    this.updateProgress();
 
-  private async generateQrCode(): Promise<void> {
-    this.qrCodeUrl = await QRCode.toDataURL(`FULLCARS:${this.memberId}`, {
-      width: 220,
-      margin: 1,
-      color: {
-        dark: '#2E58A6',
-        light: '#ffffff'
+    this.pointsSub?.unsubscribe();
+    this.pointsSub = this.rewards.pointsChanged$.subscribe((id) => {
+      if (id === profile.id) {
+        this.memberPoints = this.rewards.getPoints(profile.id);
+        this.updateProgress();
       }
     });
+  }
+
+  private updateProgress(): void {
+    this.progressPercent = Math.min(100, (this.memberPoints / this.freeWashGoal) * 100);
+    this.pointsRemaining = Math.max(0, this.freeWashGoal - this.memberPoints);
   }
 
   logout(): void {

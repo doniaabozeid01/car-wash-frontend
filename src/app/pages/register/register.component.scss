@@ -63,6 +63,13 @@
     gap: 16px;
   }
 
+  &__error {
+    font-size: 0.8125rem;
+    color: #e53935;
+    text-align: center;
+    margin-top: 4px;
+  }
+
   &__terms {
     display: flex;
     align-items: flex-start;

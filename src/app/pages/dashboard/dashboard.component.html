@@ -47,14 +47,14 @@
           <p class="pass-card__desc">{{ 'dashboard.passDesc' | translate }}</p>
           <div class="pass-card__qr">
             <img
-              *ngIf="qrCodeUrl"
+              *ngIf="qrCodeUrl && !profileLoading"
               [src]="qrCodeUrl"
               [alt]="'dashboard.qrAlt' | translate"
               class="pass-card__qr-image">
           </div>
           <div class="pass-card__member">
             <span class="pass-card__member-label">{{ 'dashboard.memberId' | translate }}</span>
-            <span class="pass-card__member-id">#{{ memberId }}</span>
+            <span class="pass-card__member-id">#{{ memberId | slice:0:8 }}</span>
           </div>
         </div>
       </div>

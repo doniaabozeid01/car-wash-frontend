@@ -13,6 +13,7 @@ export class LoginComponent implements OnInit {
   showPassword = false;
   fromSplash = false;
   loginError = '';
+  isSubmitting = false;
 
   constructor(
     private fb: FormBuilder,
@@ -30,20 +31,30 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (!this.loginForm.valid) {
+    if (!this.loginForm.valid || this.isSubmitting) {
       return;
     }
 
     const { phone, password } = this.loginForm.value;
-    const account = this.auth.login(phone, password);
-
-    if (!account) {
-      this.loginError = 'login.error';
-      return;
-    }
-
+    this.isSubmitting = true;
     this.loginError = '';
-    this.router.navigate([this.auth.getRouteForRole(account.role)]);
+
+    this.auth.login(phone, password).subscribe({
+      next: (profile) => {
+        this.isSubmitting = false;
+        this.router.navigate([this.auth.getRouteForRole(profile.role)]);
+      },
+      error: (err) => {
+        this.isSubmitting = false;
+        if (err.status === 0) {
+          this.loginError = 'login.networkError';
+        } else if (err.status === 401 || err.status === 400) {
+          this.loginError = 'login.error';
+        } else {
+          this.loginError = 'login.serverError';
+        }
+      }
+    });
   }
 
   togglePassword(): void {
