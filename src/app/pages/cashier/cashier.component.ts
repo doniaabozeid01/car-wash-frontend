@@ -197,7 +197,10 @@ export class CashierComponent implements OnInit, AfterViewInit, OnDestroy {
       this.scanner = new Html5Qrcode(CashierComponent.SCANNER_ELEMENT_ID, false);
       const scanConfig: Html5QrcodeCameraScanConfig = {
         fps: 10,
-        qrbox: { width: 250, height: 250 },
+        qrbox: (viewfinderWidth, viewfinderHeight) => {
+          const size = Math.floor(Math.min(viewfinderWidth, viewfinderHeight) * 0.72);
+          return { width: size, height: size };
+        },
         aspectRatio: 1.777778,
         disableFlip: false
       };

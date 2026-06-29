@@ -48,12 +48,14 @@
         <div class="scanner-card__viewport" [class.scanner-card__viewport--live]="scannerActive">
           <div id="cashier-qr-reader" class="scanner-card__reader"></div>
 
-          <div class="scanner-card__overlay" *ngIf="scannerActive && !showActions">
-            <span class="scanner-card__corner scanner-card__corner--tl"></span>
-            <span class="scanner-card__corner scanner-card__corner--tr"></span>
-            <span class="scanner-card__corner scanner-card__corner--bl"></span>
-            <span class="scanner-card__corner scanner-card__corner--br"></span>
-            <div class="scanner-card__scanline"></div>
+          <div class="scanner-frame" *ngIf="scannerActive && !showActions">
+            <div class="scanner-frame__target">
+              <span class="scanner-frame__corner scanner-frame__corner--tl"></span>
+              <span class="scanner-frame__corner scanner-frame__corner--tr"></span>
+              <span class="scanner-frame__corner scanner-frame__corner--bl"></span>
+              <span class="scanner-frame__corner scanner-frame__corner--br"></span>
+              <div class="scanner-frame__scanline"></div>
+            </div>
           </div>
 
           <div class="scanner-card__state" *ngIf="scannerLoading && !showActions">
