@@ -1,5 +1,13 @@
 export type UserRole = 'user' | 'cashier';
 
+export interface UserCar {
+  id: number;
+  carType: string;
+  plateNumber: string;
+  size: number;
+  points: number;
+}
+
 export interface UserProfile {
   id: string;
   fullName: string;
@@ -7,6 +15,7 @@ export interface UserProfile {
   role: UserRole;
   points: number;
   qrCodeBase64: string;
+  cars: UserCar[];
 }
 
 export interface LoginRequest {
@@ -31,5 +40,6 @@ export interface LoginResponse {
     role: string;
     points: number;
     qrCodeBase64: string;
+    cars?: UserCar[];
   };
 }

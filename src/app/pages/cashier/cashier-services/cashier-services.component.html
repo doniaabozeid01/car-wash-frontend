@@ -1,0 +1,81 @@
+<section class="cashier-panel">
+  <div class="cashier-panel__head">
+    <div>
+      <h2 class="cashier-panel__title">{{ 'cashier.services.title' | translate }}</h2>
+      <p class="cashier-panel__subtitle">{{ 'cashier.services.subtitle' | translate }}</p>
+    </div>
+    <button type="button" class="btn-inline btn-inline--primary" (click)="openCreate()" [disabled]="loading">
+      {{ 'cashier.services.add' | translate }}
+    </button>
+  </div>
+
+  <p class="cashier-error" *ngIf="loadError">{{ loadError | translate }}</p>
+  <p class="cashier-empty" *ngIf="loading">{{ 'cashier.services.loading' | translate }}</p>
+
+  <div class="cashier-table-wrap" *ngIf="!loading && services.length; else empty">
+    <table class="cashier-table">
+      <thead>
+        <tr>
+          <th>{{ 'cashier.services.name' | translate }}</th>
+          <th>{{ 'cashier.services.points' | translate }}</th>
+          <th class="cashier-table__col-actions">{{ 'cashier.services.actions' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let service of services">
+          <td>{{ serviceName(service) }}</td>
+          <td>
+            <span [class.text-redeem]="service.points < 0">
+              {{ service.points > 0 ? '+' : '' }}{{ service.points }}
+            </span>
+          </td>
+          <td class="cashier-table__col-actions">
+            <div class="cashier-table__actions">
+              <button type="button" class="btn-inline" (click)="openEdit(service)" [disabled]="saving">{{ 'cashier.services.edit' | translate }}</button>
+              <button type="button" class="btn-inline btn-inline--danger" (click)="deleteService(service.id)" [disabled]="saving">{{ 'cashier.services.delete' | translate }}</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <ng-template #empty>
+    <p class="cashier-empty" *ngIf="!loading">{{ 'cashier.services.empty' | translate }}</p>
+  </ng-template>
+</section>
+
+<div class="cashier-modal-backdrop" *ngIf="showForm" (click)="cancelForm()">
+  <div class="cashier-modal" (click)="$event.stopPropagation()">
+    <h3 class="cashier-modal__title">
+      {{ (editingId ? 'cashier.services.editTitle' : 'cashier.services.addTitle') | translate }}
+    </h3>
+    <p class="cashier-error" *ngIf="formError">{{ formError | translate }}</p>
+    <form [formGroup]="serviceForm" (ngSubmit)="saveService()" class="cashier-form">
+      <div class="form-field">
+        <label for="nameEn">{{ 'cashier.services.nameEn' | translate }}</label>
+        <div class="input-wrapper">
+          <input id="nameEn" type="text" formControlName="nameEn">
+        </div>
+      </div>
+      <div class="form-field">
+        <label for="nameAr">{{ 'cashier.services.nameAr' | translate }}</label>
+        <div class="input-wrapper">
+          <input id="nameAr" type="text" formControlName="nameAr">
+        </div>
+      </div>
+      <div class="form-field">
+        <label for="points">{{ 'cashier.services.pointsLabel' | translate }}</label>
+        <div class="input-wrapper">
+          <input id="points" type="number" formControlName="points">
+        </div>
+      </div>
+      <div class="cashier-form__actions">
+        <button type="submit" class="btn-inline btn-inline--primary" [disabled]="serviceForm.invalid || saving">
+          {{ 'cashier.services.save' | translate }}
+        </button>
+        <button type="button" class="btn-inline" (click)="cancelForm()" [disabled]="saving">{{ 'cashier.cancel' | translate }}</button>
+      </div>
+    </form>
+  </div>
+</div>

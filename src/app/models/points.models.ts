@@ -1,24 +1,31 @@
-export enum PointsActionType {
-  Add30 = 0,
-  Add50 = 1,
-  Subtract250 = 2
+export interface ScannedCar {
+  id: number;
+  carType: string;
+  plateNumber: string;
+  size: number;
+  points: number;
 }
 
 export interface ScannedCustomer {
   id: string;
   fullName: string;
   phoneNumber: string;
-  points: number;
+  cars: ScannedCar[];
 }
 
 export interface ApplyPointsRequest {
   qrCode: string;
-  action: PointsActionType;
+  serviceId: number;
+  carId: number;
+  amountPaid?: number;
+  paymentMethod?: number;
 }
 
 export interface ApplyPointsResult {
-  points: number;
+  id: string;
   fullName: string;
+  phoneNumber: string;
+  cars: ScannedCar[];
 }
 
 export interface PointsUpdatedEvent {
@@ -26,3 +33,8 @@ export interface PointsUpdatedEvent {
   change: number;
   action: string;
 }
+
+export const API_PAYMENT_METHOD = {
+  cash: 1,
+  network: 2
+} as const;

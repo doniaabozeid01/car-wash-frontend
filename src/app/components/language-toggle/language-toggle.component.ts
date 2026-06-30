@@ -12,9 +12,16 @@ export class LanguageToggleComponent {
 
   constructor(public language: LanguageService) {}
 
-  setLanguage(lang: AppLanguage): void {
-    if (this.language.current !== lang) {
-      this.language.setLanguage(lang);
-    }
+  get currentLabelKey(): string {
+    return this.language.current === 'ar' ? 'lang.en' : 'lang.ar';
+  }
+
+  get switchLabelKey(): string {
+    return this.language.current === 'ar' ? 'lang.switchToEn' : 'lang.switchToAr';
+  }
+
+  toggleLanguage(): void {
+    const next: AppLanguage = this.language.current === 'ar' ? 'en' : 'ar';
+    this.language.setLanguage(next);
   }
 }

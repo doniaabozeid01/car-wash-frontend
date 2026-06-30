@@ -25,7 +25,7 @@
   &__actions {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     flex-shrink: 0;
   }
 
@@ -33,6 +33,13 @@
     display: flex;
     align-items: center;
     gap: 16px;
+    min-width: 0;
+  }
+
+  &__logo-link {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
     transition: opacity var(--transition);
 
     &:hover {
@@ -41,41 +48,51 @@
   }
 
   &__logo {
-    height: clamp(48px, 8vw, 64px);
+    height: clamp(64px, 10vw, 80px);
     width: auto;
     display: block;
-    flex-shrink: 0;
   }
 
-  &__site-name {
+  &__user-info {
     display: flex;
     flex-direction: column;
-    line-height: 1.1;
-    font-family: var(--font-display);
-    font-size: clamp(1.125rem, 2.5vw, 1.5rem);
-    font-weight: 800;
+    gap: 2px;
+    min-width: 0;
   }
 
-  &__site-name-full {
-    color: var(--brand-orange);
+  &__user-name {
+    font-size: clamp(1.125rem, 2.5vw, 1.375rem);
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  &__site-name-cars {
-    color: var(--brand-blue);
-    font-style: italic;
-    letter-spacing: 0.06em;
+  &__user-phone {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    direction: ltr;
+    unicode-bidi: isolate;
+    align-self: flex-start;
   }
 
-  &__logout {
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--brand-blue);
-    padding: 8px 14px;
+  &__logout-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
     border-radius: var(--radius-sm);
     border: 1px solid rgba(46, 88, 166, 0.2);
+    color: var(--brand-blue);
     transition: color var(--transition), border-color var(--transition), background var(--transition);
+
+    svg {
+      display: block;
+    }
 
     &:hover {
       color: var(--brand-orange);
@@ -93,25 +110,6 @@
     margin: 0 auto;
   }
 
-  &__greeting {
-    margin-bottom: 28px;
-
-    &-label {
-      font-size: 0.6875rem;
-      font-weight: 600;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--brand-blue);
-      margin-bottom: 4px;
-    }
-
-    &-name {
-      font-size: clamp(1.5rem, 4vw, 2rem);
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-  }
-
   &__grid {
     display: grid;
     gap: 20px;
@@ -120,44 +118,140 @@
 }
 
 .points-card {
+  order: 2;
   background: linear-gradient(160deg, rgba(245, 130, 32, 0.08) 0%, var(--bg-card) 45%);
   border: 1px solid var(--border-gold);
   border-radius: var(--radius-lg);
-  padding: 28px 24px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   min-height: 100%;
   box-shadow: var(--shadow-blue);
 
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
   &__label {
     font-size: 0.6875rem;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--brand-blue);
-    margin-bottom: 8px;
   }
 
-  &__value {
-    font-size: clamp(3rem, 8vw, 4rem);
+  &__total {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--brand-orange);
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(245, 130, 32, 0.12);
+    white-space: nowrap;
+  }
+}
+
+.car-points-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.car-points-item {
+  padding: 18px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(46, 88, 166, 0.1);
+  box-shadow: 0 4px 14px rgba(46, 88, 166, 0.05);
+
+  &__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  &__info {
+    min-width: 0;
+  }
+
+  &__type {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    line-height: 1.2;
+  }
+
+  &__plate {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--brand-blue);
+    letter-spacing: 0.02em;
+    word-break: break-word;
+  }
+
+  &__size {
+    flex-shrink: 0;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #9a3412;
+    background: rgba(245, 130, 32, 0.14);
+
+    &--large {
+      color: #1e3f7a;
+      background: rgba(46, 88, 166, 0.12);
+    }
+  }
+
+  &__points-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  &__points {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  &__points-value {
+    font-size: clamp(2rem, 5vw, 2.5rem);
     font-weight: 800;
     color: var(--brand-orange);
     line-height: 1;
-    margin-bottom: 32px;
+    direction: ltr;
+    unicode-bidi: isolate;
   }
 
-  &__progress-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
+  &__points-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  &__goal {
     font-size: 0.6875rem;
     font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    letter-spacing: 0.04em;
     color: var(--text-secondary);
-    margin-bottom: 10px;
+    white-space: nowrap;
+    direction: ltr;
+    unicode-bidi: isolate;
   }
 
   &__progress-bar {
@@ -165,7 +259,7 @@
     background: rgba(46, 88, 166, 0.1);
     border-radius: 4px;
     overflow: hidden;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
   }
 
   &__progress-fill {
@@ -173,27 +267,59 @@
     background: var(--gradient-gold);
     border-radius: 4px;
     transition: width 0.6s ease;
-    box-shadow: 0 0 12px rgba(245, 130, 32, 0.35);
+    box-shadow: 0 0 10px rgba(245, 130, 32, 0.3);
   }
 
   &__note {
     font-size: 0.8125rem;
     color: var(--text-muted);
-    line-height: 1.5;
-
-    strong {
-      color: var(--brand-orange);
-      font-weight: 600;
-    }
+    line-height: 1.45;
 
     &--ready {
       color: var(--brand-blue);
-      font-weight: 500;
+      font-weight: 600;
     }
   }
 }
 
+.car-points-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 28px 16px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px dashed rgba(46, 88, 166, 0.18);
+
+  &__value {
+    font-size: clamp(2.5rem, 7vw, 3.5rem);
+    font-weight: 800;
+    color: var(--brand-orange);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  &__label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--brand-blue);
+    margin-bottom: 8px;
+  }
+
+  &__hint {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    max-width: 260px;
+  }
+}
+
 .pass-card {
+  order: 1;
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
@@ -228,6 +354,26 @@
     overflow: hidden;
     padding: 8px;
     background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__qr-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  &__spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid rgba(46, 88, 166, 0.15);
+    border-top-color: var(--brand-orange);
+    border-radius: 50%;
+    animation: dashboard-spin 0.8s linear infinite;
   }
 
   &__qr-image {
@@ -263,9 +409,29 @@
     grid-template-columns: 1fr 1fr;
   }
 
+  .points-card {
+    order: unset;
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .pass-card {
+    order: unset;
+    grid-column: 2;
+    grid-row: 1;
+  }
+
   .points-card,
   .pass-card {
     padding: 32px 28px;
+  }
+
+  :host-context([dir='rtl']) .points-card {
+    grid-column: 2;
+  }
+
+  :host-context([dir='rtl']) .pass-card {
+    grid-column: 1;
   }
 }
 
@@ -288,4 +454,33 @@
   .dashboard__main {
     padding: 32px 24px;
   }
+}
+
+@media (max-width: 480px) {
+  .dashboard__header-inner {
+    padding: 12px 16px;
+    gap: 10px;
+  }
+
+  .dashboard__logo {
+    height: 52px;
+  }
+
+  .dashboard__user-name {
+    font-size: 1rem;
+  }
+
+  .dashboard__user-phone {
+    font-size: 0.8125rem;
+  }
+}
+
+@keyframes dashboard-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+:host-context([dir='rtl']) .dashboard__logout-icon svg {
+  transform: scaleX(-1);
 }

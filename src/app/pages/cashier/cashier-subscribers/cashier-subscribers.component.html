@@ -1,0 +1,95 @@
+<section class="cashier-panel">
+  <div class="cashier-panel__head">
+    <div>
+      <h2 class="cashier-panel__title">{{ 'cashier.subscribers.title' | translate }}</h2>
+      <p class="cashier-panel__subtitle">{{ 'cashier.subscribers.subtitle' | translate }}</p>
+    </div>
+    <label class="filter-toggle">
+      <input type="checkbox" [(ngModel)]="monthOnly" (ngModelChange)="toggleMonthFilter()">
+      <span>{{ 'cashier.subscribers.monthOnly' | translate }}</span>
+    </label>
+  </div>
+
+  <div class="cashier-table-wrap" *ngIf="rows.length; else empty">
+    <table class="cashier-table">
+      <thead>
+        <tr>
+          <th>{{ 'cashier.subscribers.customer' | translate }}</th>
+          <th>{{ 'cashier.subscribers.phone' | translate }}</th>
+          <th>{{ 'cashier.subscribers.plate' | translate }}</th>
+          <th>{{ 'cashier.subscribers.carType' | translate }}</th>
+          <th>{{ 'cashier.subscribers.size' | translate }}</th>
+          <th>{{ 'cashier.subscribers.status' | translate }}</th>
+          <th>{{ 'cashier.subscribers.joined' | translate }}</th>
+          <th class="cashier-table__col-actions">{{ 'cashier.subscribers.actions' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of rows">
+          <td>{{ row.fullName }}</td>
+          <td>{{ row.phoneNumber }}</td>
+          <td>{{ row.car?.plateNumber || ('cashier.subscribers.noCar' | translate) }}</td>
+          <td>{{ row.car?.carType || '—' }}</td>
+          <td>
+            <span *ngIf="row.car" class="badge" [class.badge--small]="row.car.size === 'small'" [class.badge--large]="row.car.size === 'large'">
+              {{ (row.car.size === 'small' ? 'cashier.subscribers.sizeSmall' : 'cashier.subscribers.sizeLarge') | translate }}
+            </span>
+            <span *ngIf="!row.car">—</span>
+          </td>
+          <td>
+            <span class="badge" [class.badge--new]="row.isNew" [class.badge--existing]="!row.isNew">
+              {{ (row.isNew ? 'cashier.subscribers.new' : 'cashier.subscribers.existing') | translate }}
+            </span>
+          </td>
+          <td>{{ formatDate(row.car?.subscribedAt || row.createdAt) }}</td>
+          <td class="cashier-table__col-actions">
+            <div class="cashier-table__actions">
+              <button type="button" class="btn-inline" (click)="openAddCar(row)">
+                {{ 'cashier.subscribers.addCar' | translate }}
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <ng-template #empty>
+    <p class="cashier-empty">{{ 'cashier.subscribers.empty' | translate }}</p>
+  </ng-template>
+</section>
+
+<div class="cashier-modal-backdrop" *ngIf="showCarModal" (click)="closeCarModal()">
+  <div class="cashier-modal" (click)="$event.stopPropagation()">
+    <h3 class="cashier-modal__title">{{ 'cashier.subscribers.addCarTitle' | translate: { name: selectedCustomerName } }}</h3>
+    <form [formGroup]="carForm" (ngSubmit)="saveCar()" class="cashier-form">
+      <div class="form-field">
+        <label for="plateNumber">{{ 'cashier.subscribers.plate' | translate }}</label>
+        <div class="input-wrapper">
+          <input id="plateNumber" type="text" formControlName="plateNumber" placeholder="ABC 1234">
+        </div>
+      </div>
+      <div class="form-field">
+        <label for="carType">{{ 'cashier.subscribers.carType' | translate }}</label>
+        <div class="input-wrapper">
+          <input id="carType" type="text" formControlName="carType" placeholder="Toyota Corolla">
+        </div>
+      </div>
+      <div class="form-field">
+        <label for="size">{{ 'cashier.subscribers.size' | translate }}</label>
+        <div class="input-wrapper">
+          <select id="size" formControlName="size" class="cashier-select">
+            <option value="small">{{ 'cashier.subscribers.sizeSmall' | translate }}</option>
+            <option value="large">{{ 'cashier.subscribers.sizeLarge' | translate }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="cashier-form__actions">
+        <button type="submit" class="btn-inline btn-inline--primary" [disabled]="carForm.invalid">
+          {{ 'cashier.subscribers.saveCar' | translate }}
+        </button>
+        <button type="button" class="btn-inline" (click)="closeCarModal()">{{ 'cashier.cancel' | translate }}</button>
+      </div>
+    </form>
+  </div>
+</div>

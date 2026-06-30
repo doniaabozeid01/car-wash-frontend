@@ -1,0 +1,181 @@
+<section class="scanner-card">
+  <div class="scanner-card__head">
+    <div>
+      <h2 class="scanner-card__title">{{ 'cashier.scannerTitle' | translate }}</h2>
+      <p class="scanner-card__subtitle">{{ 'cashier.scannerSubtitle' | translate }}</p>
+    </div>
+    <div class="scanner-card__pulse" *ngIf="scannerActive">
+      <span></span>
+      {{ 'cashier.cameraLive' | translate }}
+    </div>
+  </div>
+
+  <div class="scanner-card__viewport" [class.scanner-card__viewport--live]="scannerActive">
+    <div id="cashier-qr-reader" class="scanner-card__reader"></div>
+
+    <div class="scanner-frame" *ngIf="scannerActive && !showCheckout && !showSuccess">
+      <div class="scanner-frame__target">
+        <span class="scanner-frame__corner scanner-frame__corner--tl"></span>
+        <span class="scanner-frame__corner scanner-frame__corner--tr"></span>
+        <span class="scanner-frame__corner scanner-frame__corner--bl"></span>
+        <span class="scanner-frame__corner scanner-frame__corner--br"></span>
+        <div class="scanner-frame__scanline"></div>
+      </div>
+    </div>
+
+    <div class="scanner-card__state" *ngIf="scannerLoading && !showCheckout && !showSuccess">
+      <div class="scanner-card__spinner"></div>
+      <p>{{ 'cashier.openingCamera' | translate }}</p>
+    </div>
+
+    <div class="scanner-card__state scanner-card__state--error" *ngIf="scannerError && !showCheckout && !showSuccess">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+        <circle cx="12" cy="13" r="4"/>
+      </svg>
+      <p>{{ scannerError | translate }}</p>
+      <button type="button" class="scanner-card__retry" (click)="retryScanner()">{{ 'cashier.retry' | translate }}</button>
+    </div>
+
+    <div class="scanner-card__state scanner-card__state--error" *ngIf="actionError && actionMessage && !showCheckout && !showSuccess && !scanValidating && !scannerError">
+      <p>{{ actionMessage.startsWith('cashier.') ? (actionMessage | translate: actionMessageParams) : actionMessage }}</p>
+      <button type="button" class="scanner-card__retry" (click)="clearScan()">{{ 'cashier.scanNext' | translate }}</button>
+    </div>
+
+    <div class="scanner-card__state" *ngIf="scanValidating">
+      <div class="scanner-card__spinner"></div>
+      <p>{{ 'cashier.validatingScan' | translate }}</p>
+    </div>
+
+    <div class="checkout-panel" *ngIf="showCheckout && scannedCustomer">
+      <div class="checkout-panel__head">
+        <p class="checkout-panel__title">{{ 'cashier.scanSuccess' | translate }}</p>
+        <p class="checkout-panel__customer">{{ scannedCustomer.fullName }}</p>
+        <p class="checkout-panel__meta">{{ scannedCustomer.phoneNumber }}</p>
+      </div>
+
+      <div class="checkout-steps">
+        <button type="button" class="checkout-steps__item" [class.checkout-steps__item--active]="checkoutStep === 'car'" (click)="goToStep('car')">1</button>
+        <span class="checkout-steps__line"></span>
+        <button type="button" class="checkout-steps__item" [class.checkout-steps__item--active]="checkoutStep === 'service'" (click)="selectedCarId && goToStep('service')">2</button>
+        <span class="checkout-steps__line"></span>
+        <button type="button" class="checkout-steps__item" [class.checkout-steps__item--active]="checkoutStep === 'payment'" (click)="selectedServiceId && requiresPayment && goToStep('payment')">3</button>
+      </div>
+
+      <div class="checkout-panel__body">
+        <ng-container [ngSwitch]="checkoutStep">
+          <div *ngSwitchCase="'car'" class="checkout-step">
+            <p class="checkout-step__label">{{ 'cashier.selectCar' | translate }}</p>
+            <div class="checkout-options">
+              <button
+                type="button"
+                class="checkout-option"
+                *ngFor="let car of scannedCars"
+                [class.checkout-option--active]="selectedCarId === car.id"
+                (click)="selectCar(car.id)">
+                <span class="checkout-option__title">{{ car.plateNumber }}</span>
+                <span class="checkout-option__meta">{{ car.carType }}</span>
+                <span class="checkout-option__points">{{ 'cashier.carPoints' | translate: { points: car.points } }}</span>
+              </button>
+            </div>
+            <p class="checkout-step__error" *ngIf="actionError && checkoutStep === 'car'">{{ actionMessage | translate: actionMessageParams }}</p>
+            <button type="button" class="checkout-panel__primary" (click)="nextFromCar()">{{ 'cashier.next' | translate }}</button>
+          </div>
+
+          <div *ngSwitchCase="'service'" class="checkout-step">
+            <p class="checkout-step__label">{{ 'cashier.selectService' | translate }}</p>
+            <div class="checkout-options">
+              <button
+                type="button"
+                class="checkout-option"
+                *ngFor="let service of availableServices"
+                [class.checkout-option--active]="selectedServiceId === service.id"
+                (click)="selectService(service.id)">
+                <span class="checkout-option__title">{{ serviceName(service) }}</span>
+                <span class="checkout-option__points">{{ servicePointsLabel(service) }} {{ 'cashier.pointsShort' | translate }}</span>
+              </button>
+            </div>
+            <p class="checkout-step__error" *ngIf="actionError && checkoutStep === 'service'">{{ actionMessage | translate: actionMessageParams }}</p>
+            <div class="checkout-panel__actions">
+              <button type="button" class="checkout-panel__secondary" (click)="goToStep('car')">{{ 'cashier.back' | translate }}</button>
+              <button type="button" class="checkout-panel__primary" (click)="nextFromService()" [disabled]="actionLoading">
+                {{ requiresPayment ? ('cashier.next' | translate) : ('cashier.confirm' | translate) }}
+              </button>
+            </div>
+          </div>
+
+          <div *ngSwitchCase="'payment'" class="checkout-step">
+            <p class="checkout-step__label">{{ 'cashier.enterPrice' | translate }}</p>
+            <div class="checkout-field">
+              <input
+                type="number"
+                min="0"
+                step="1"
+                [(ngModel)]="amountPaid"
+                [attr.placeholder]="'cashier.pricePlaceholder' | translate">
+            </div>
+
+            <p class="checkout-step__label">{{ 'cashier.paymentMethod' | translate }}</p>
+            <div class="payment-toggle">
+              <button
+                type="button"
+                class="payment-toggle__btn"
+                [class.payment-toggle__btn--active]="paymentMethod === 'cash'"
+                (click)="paymentMethod = 'cash'">
+                {{ 'cashier.paymentCash' | translate }}
+              </button>
+              <button
+                type="button"
+                class="payment-toggle__btn"
+                [class.payment-toggle__btn--active]="paymentMethod === 'card'"
+                (click)="paymentMethod = 'card'">
+                {{ 'cashier.paymentCard' | translate }}
+              </button>
+            </div>
+
+            <p class="checkout-step__error" *ngIf="actionError && checkoutStep === 'payment'">{{ actionMessage | translate: actionMessageParams }}</p>
+            <div class="checkout-panel__actions">
+              <button type="button" class="checkout-panel__secondary" (click)="goToStep('service')">{{ 'cashier.back' | translate }}</button>
+              <button type="button" class="checkout-panel__primary" (click)="submitTransaction()" [disabled]="actionLoading">
+                {{ 'cashier.confirm' | translate }}
+              </button>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+
+      <button type="button" class="checkout-panel__cancel" [disabled]="actionLoading" (click)="clearScan()">{{ 'cashier.cancel' | translate }}</button>
+    </div>
+
+    <div class="scanner-card__success" *ngIf="showSuccess">
+      <div class="scanner-success">
+        <div class="scanner-success__icon" aria-hidden="true">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 6L9 17l-5-5"/>
+          </svg>
+        </div>
+        <p class="scanner-success__title">{{ 'cashier.done' | translate }}</p>
+        <p class="scanner-success__message">
+          {{ actionMessage.startsWith('cashier.') ? (actionMessage | translate: actionMessageParams) : actionMessage }}
+        </p>
+        <p class="scanner-success__hint">{{ 'cashier.scanAgainHint' | translate }}</p>
+        <button type="button" class="scanner-success__btn" (click)="clearScan()">{{ 'cashier.scanNext' | translate }}</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="scanner-card__steps">
+    <div class="step">
+      <span class="step__num">1</span>
+      <span class="step__text">{{ 'cashier.step1' | translate }}</span>
+    </div>
+    <div class="step">
+      <span class="step__num">2</span>
+      <span class="step__text">{{ 'cashier.step2' | translate }}</span>
+    </div>
+    <div class="step">
+      <span class="step__num">3</span>
+      <span class="step__text">{{ 'cashier.step3' | translate }}</span>
+    </div>
+  </div>
+</section>

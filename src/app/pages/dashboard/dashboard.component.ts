@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { UserProfile } from '../../models/auth.models';
+import { UserCar, UserProfile } from '../../models/auth.models';
 import { AuthService } from '../../services/auth.service';
 import { PointsHubService } from '../../services/points-hub.service';
 import { RewardsService } from '../../services/rewards.service';
@@ -12,11 +12,11 @@ import { RewardsService } from '../../services/rewards.service';
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit, OnDestroy {
+  cars: UserCar[] = [];
   memberPoints = 0;
   freeWashGoal = 250;
-  progressPercent = 0;
-  pointsRemaining = 0;
   userName = '';
+  userPhone = '';
   memberId = '';
   qrCodeUrl = '';
   profileLoading = true;
@@ -37,21 +37,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     this.freeWashGoal = this.rewards.getFreeWashGoal();
-
-    this.auth.fetchProfile().subscribe({
-      next: (profile) => {
-        if (profile.role !== 'user') {
-          this.router.navigate(['/login']);
-          return;
-        }
-        this.bindProfile(profile);
-        this.profileLoading = false;
-        void this.startPointsHub(profile.id);
-      },
-      error: () => {
-        this.router.navigate(['/login']);
-      }
-    });
+    this.loadProfile();
   }
 
   ngOnDestroy(): void {
@@ -65,21 +51,58 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.router.navigate(['/login']);
   }
 
+  carProgress(car: UserCar): number {
+    return Math.min(100, (car.points / this.freeWashGoal) * 100);
+  }
+
+  carPointsRemaining(car: UserCar): number {
+    return Math.max(0, this.freeWashGoal - car.points);
+  }
+
+  isCarReady(car: UserCar): boolean {
+    return car.points >= this.freeWashGoal;
+  }
+
+  isLargeCar(car: UserCar): boolean {
+    return car.size === 1;
+  }
+
+  private loadProfile(): void {
+    this.auth.fetchProfile().subscribe({
+      next: (profile) => {
+        if (profile.role !== 'user') {
+          this.router.navigate(['/login']);
+          return;
+        }
+
+        this.bindProfile(profile);
+        this.profileLoading = false;
+        void this.startPointsHub(profile.id);
+      },
+      error: () => {
+        this.router.navigate(['/login']);
+      }
+    });
+  }
+
   private bindProfile(profile: UserProfile): void {
     this.userName = profile.fullName;
+    this.userPhone = profile.phoneNumber;
     this.memberId = profile.id;
     this.qrCodeUrl = this.auth.getQrCodeDataUrl(profile);
+    this.cars = profile.cars;
     this.memberPoints = profile.points;
-    this.updateProgress();
   }
 
   private async startPointsHub(memberId: string): Promise<void> {
     this.hubSub?.unsubscribe();
-    this.hubSub = this.pointsHub.pointsUpdated$.subscribe((data) => {
-      this.memberPoints = data.points;
-      this.rewards.syncPoints(data.points, memberId);
-      this.auth.updateStoredPoints(data.points);
-      this.updateProgress();
+    this.hubSub = this.pointsHub.pointsUpdated$.subscribe(() => {
+      this.auth.fetchProfile().subscribe({
+        next: (profile) => {
+          this.bindProfile(profile);
+          this.rewards.syncPoints(profile.points, memberId);
+        }
+      });
     });
 
     try {
@@ -87,10 +110,5 @@ export class DashboardComponent implements OnInit, OnDestroy {
     } catch {
       // Profile still works; points refresh on next page load.
     }
-  }
-
-  private updateProgress(): void {
-    this.progressPercent = Math.min(100, (this.memberPoints / this.freeWashGoal) * 100);
-    this.pointsRemaining = Math.max(0, this.freeWashGoal - this.memberPoints);
   }
 }

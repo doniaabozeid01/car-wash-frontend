@@ -6,6 +6,7 @@ import {
   LoginRequest,
   LoginResponse,
   RegisterRequest,
+  UserCar,
   UserProfile,
   UserRole
 } from '../models/auth.models';
@@ -94,7 +95,7 @@ export class AuthService {
   }
 
   getRouteForRole(role: UserRole): string {
-    return role === 'cashier' ? '/cashier' : '/dashboard';
+    return role === 'cashier' ? '/cashier/scan' : '/dashboard';
   }
 
   getQrCodeDataUrl(profile?: UserProfile | null): string {
@@ -159,7 +160,11 @@ export class AuthService {
 
     try {
       this.token = token;
-      this.currentUser = JSON.parse(profileRaw) as UserProfile;
+      const parsed = JSON.parse(profileRaw) as UserProfile;
+      this.currentUser = {
+        ...parsed,
+        cars: Array.isArray(parsed.cars) ? parsed.cars : []
+      };
       this.rewards.syncPoints(this.currentUser.points, this.currentUser.id);
     } catch {
       this.logout();
@@ -176,14 +181,35 @@ export class AuthService {
 
   private mapProfile(profile: LoginResponse['profile'] | Record<string, unknown>): UserProfile {
     const raw = profile as Record<string, unknown>;
+    const cars = this.mapCars(raw['cars'] ?? raw['Cars']);
+    const points = Number(raw['points'] ?? raw['Points'] ?? 0);
+
     return {
       id: String(raw['id'] ?? raw['Id'] ?? ''),
       fullName: String(raw['fullName'] ?? raw['FullName'] ?? ''),
       phoneNumber: String(raw['phoneNumber'] ?? raw['PhoneNumber'] ?? ''),
       role: this.normalizeRole(String(raw['role'] ?? raw['Role'] ?? 'User')),
-      points: Number(raw['points'] ?? raw['Points'] ?? 0),
-      qrCodeBase64: String(raw['qrCodeBase64'] ?? raw['QrCodeBase64'] ?? '')
+      points: cars.length ? cars.reduce((sum, car) => sum + car.points, 0) : points,
+      qrCodeBase64: String(raw['qrCodeBase64'] ?? raw['QrCodeBase64'] ?? ''),
+      cars
     };
+  }
+
+  private mapCars(value: unknown): UserCar[] {
+    if (!Array.isArray(value)) {
+      return [];
+    }
+
+    return value.map((item) => {
+      const raw = item as Record<string, unknown>;
+      return {
+        id: Number(raw['id'] ?? raw['Id'] ?? 0),
+        carType: String(raw['carType'] ?? raw['CarType'] ?? ''),
+        plateNumber: String(raw['plateNumber'] ?? raw['PlateNumber'] ?? ''),
+        size: Number(raw['size'] ?? raw['Size'] ?? 0),
+        points: Number(raw['points'] ?? raw['Points'] ?? 0)
+      };
+    });
   }
 
   private normalizeRole(role: string): UserRole {

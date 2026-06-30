@@ -1,45 +1,88 @@
 <div class="dashboard">
   <header class="dashboard__header">
     <div class="dashboard__header-inner">
-      <a routerLink="/" class="dashboard__brand">
-        <img src="assets/logo.png" [alt]="'common.brand' | translate" class="dashboard__logo">
-        <span class="dashboard__site-name">
-          <span class="dashboard__site-name-full">FULL</span>
-          <span class="dashboard__site-name-cars">CARS</span>
-        </span>
-      </a>
+      <div class="dashboard__brand">
+        <a routerLink="/" class="dashboard__logo-link">
+          <img src="assets/logo.png" [alt]="'common.brand' | translate" class="dashboard__logo">
+        </a>
+        <div class="dashboard__user-info" *ngIf="userName">
+          <h1 class="dashboard__user-name">{{ userName }}</h1>
+          <p class="dashboard__user-phone" *ngIf="userPhone">{{ userPhone }}</p>
+        </div>
+      </div>
       <div class="dashboard__actions">
         <app-language-toggle [compact]="true"></app-language-toggle>
-        <button type="button" class="dashboard__logout" (click)="logout()">{{ 'common.logout' | translate }}</button>
+        <button
+          type="button"
+          class="dashboard__logout-icon"
+          (click)="logout()"
+          [attr.aria-label]="'common.logout' | translate"
+          [title]="'common.logout' | translate">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+        </button>
       </div>
     </div>
   </header>
 
   <main class="dashboard__main">
     <div class="dashboard__container">
-      <section class="dashboard__greeting">
-        <p class="dashboard__greeting-label">{{ 'dashboard.clientLabel' | translate }}</p>
-        <h1 class="dashboard__greeting-name">{{ 'dashboard.hello' | translate: { name: userName } }}</h1>
-      </section>
-
       <div class="dashboard__grid">
         <div class="points-card">
-          <p class="points-card__label">{{ 'dashboard.yourPoints' | translate }}</p>
-          <div class="points-card__value">{{ memberPoints | number }}</div>
+          <div class="points-card__header">
+            <p class="points-card__label">{{ 'dashboard.yourCars' | translate }}</p>
+            <span class="points-card__total">
+              <bdi>{{ memberPoints | number }}</bdi> {{ 'dashboard.pointsUnit' | translate }}
+            </span>
+          </div>
 
-          <div class="points-card__progress-header">
-            <span>{{ 'dashboard.freeWashReward' | translate }}</span>
-            <span>{{ memberPoints }} / {{ freeWashGoal }} PTS</span>
+          <div class="car-points-list" *ngIf="cars.length; else noCars">
+            <article class="car-points-item" *ngFor="let car of cars">
+              <div class="car-points-item__top">
+                <div class="car-points-item__info">
+                  <h3 class="car-points-item__type">{{ car.carType }}</h3>
+                  <p class="car-points-item__plate">{{ car.plateNumber }}</p>
+                </div>
+                <span
+                  class="car-points-item__size"
+                  [class.car-points-item__size--large]="isLargeCar(car)">
+                  {{ (isLargeCar(car) ? 'dashboard.sizeLarge' : 'dashboard.sizeSmall') | translate }}
+                </span>
+              </div>
+
+              <div class="car-points-item__points-row">
+                <div class="car-points-item__points">
+                  <span class="car-points-item__points-value"><bdi>{{ car.points | number }}</bdi></span>
+                  <span class="car-points-item__points-label">{{ 'dashboard.pointsUnit' | translate }}</span>
+                </div>
+                <span class="car-points-item__goal">
+                  <bdi>{{ car.points }} / {{ freeWashGoal }}</bdi>
+                </span>
+              </div>
+
+              <div class="car-points-item__progress-bar">
+                <div class="car-points-item__progress-fill" [style.width.%]="carProgress(car)"></div>
+              </div>
+
+              <p class="car-points-item__note" *ngIf="!isCarReady(car)">
+                {{ 'dashboard.pointsRemaining' | translate: { count: carPointsRemaining(car) } }}
+              </p>
+              <p class="car-points-item__note car-points-item__note--ready" *ngIf="isCarReady(car)">
+                {{ 'dashboard.pointsReady' | translate }}
+              </p>
+            </article>
           </div>
-          <div class="points-card__progress-bar">
-            <div class="points-card__progress-fill" [style.width.%]="progressPercent"></div>
-          </div>
-          <p class="points-card__note" *ngIf="pointsRemaining > 0">
-            {{ 'dashboard.pointsRemaining' | translate: { count: pointsRemaining } }}
-          </p>
-          <p class="points-card__note points-card__note--ready" *ngIf="pointsRemaining === 0">
-            {{ 'dashboard.pointsReady' | translate }}
-          </p>
+
+          <ng-template #noCars>
+            <div class="car-points-empty">
+              <p class="car-points-empty__value"><bdi>{{ memberPoints | number }}</bdi></p>
+              <p class="car-points-empty__label">{{ 'dashboard.yourPoints' | translate }}</p>
+              <p class="car-points-empty__hint">{{ 'dashboard.noCars' | translate }}</p>
+            </div>
+          </ng-template>
         </div>
 
         <div class="pass-card">
@@ -51,6 +94,9 @@
               [src]="qrCodeUrl"
               [alt]="'dashboard.qrAlt' | translate"
               class="pass-card__qr-image">
+            <div class="pass-card__qr-loading" *ngIf="profileLoading">
+              <div class="pass-card__spinner"></div>
+            </div>
           </div>
           <div class="pass-card__member">
             <span class="pass-card__member-label">{{ 'dashboard.memberId' | translate }}</span>

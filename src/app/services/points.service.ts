@@ -5,7 +5,7 @@ import { environment } from '../../environments/environment';
 import {
   ApplyPointsRequest,
   ApplyPointsResult,
-  PointsActionType,
+  ScannedCar,
   ScannedCustomer
 } from '../models/points.models';
 
@@ -25,26 +25,49 @@ export class PointsService {
       .pipe(map((response) => this.mapCustomer(response)));
   }
 
-  applyAction(qrCode: string, action: PointsActionType): Observable<ApplyPointsResult> {
-    const body: ApplyPointsRequest = { qrCode: qrCode.trim(), action };
+  applyTransaction(request: ApplyPointsRequest): Observable<ApplyPointsResult> {
     return this.http
-      .post<Record<string, unknown>>(this.apiUrl('/api/Points/apply'), body, { headers: JSON_HEADERS })
+      .post<Record<string, unknown>>(this.apiUrl('/api/Points/apply'), request, {
+        headers: JSON_HEADERS
+      })
       .pipe(map((response) => this.mapApplyResult(response)));
   }
 
   private mapCustomer(raw: Record<string, unknown>): ScannedCustomer {
+    const carsRaw = raw['cars'] ?? raw['Cars'];
+    const cars = Array.isArray(carsRaw)
+      ? carsRaw.map((item) => this.mapCar(item as Record<string, unknown>))
+      : [];
+
     return {
       id: String(raw['id'] ?? raw['Id'] ?? ''),
       fullName: String(raw['fullName'] ?? raw['FullName'] ?? ''),
       phoneNumber: String(raw['phoneNumber'] ?? raw['PhoneNumber'] ?? ''),
-      points: Number(raw['points'] ?? raw['Points'] ?? 0)
+      cars
     };
   }
 
   private mapApplyResult(raw: Record<string, unknown>): ApplyPointsResult {
+    const carsRaw = raw['cars'] ?? raw['Cars'];
+    const cars = Array.isArray(carsRaw)
+      ? carsRaw.map((item) => this.mapCar(item as Record<string, unknown>))
+      : [];
+
     return {
-      points: Number(raw['points'] ?? raw['Points'] ?? 0),
-      fullName: String(raw['fullName'] ?? raw['FullName'] ?? '')
+      id: String(raw['id'] ?? raw['Id'] ?? ''),
+      fullName: String(raw['fullName'] ?? raw['FullName'] ?? ''),
+      phoneNumber: String(raw['phoneNumber'] ?? raw['PhoneNumber'] ?? ''),
+      cars
+    };
+  }
+
+  private mapCar(raw: Record<string, unknown>): ScannedCar {
+    return {
+      id: Number(raw['id'] ?? raw['Id'] ?? 0),
+      carType: String(raw['carType'] ?? raw['CarType'] ?? ''),
+      plateNumber: String(raw['plateNumber'] ?? raw['PlateNumber'] ?? ''),
+      size: Number(raw['size'] ?? raw['Size'] ?? 0),
+      points: Number(raw['points'] ?? raw['Points'] ?? 0)
     };
   }
 

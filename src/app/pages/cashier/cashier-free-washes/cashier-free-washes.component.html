@@ -1,0 +1,135 @@
+<section class="cashier-panel activity-panel">
+  <div class="activity-panel__intro">
+    <h2 class="cashier-panel__title">{{ 'cashier.freeWashes.title' | translate }}</h2>
+    <p class="cashier-panel__subtitle">{{ 'cashier.freeWashes.subtitle' | translate }}</p>
+  </div>
+
+  <div class="activity-toolbar">
+    <div class="activity-toolbar__period-icon" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+        <rect x="3" y="4" width="18" height="18" rx="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+    </div>
+
+    <label class="activity-toolbar__field">
+      <select
+        id="activityMonth"
+        class="cashier-select activity-toolbar__select"
+        [attr.aria-label]="'cashier.freeWashes.month' | translate"
+        [(ngModel)]="selectedMonth"
+        (ngModelChange)="onFiltersChange()">
+        <option *ngFor="let month of months" [value]="month.value">{{ month.label }}</option>
+      </select>
+    </label>
+
+    <label class="activity-toolbar__field activity-toolbar__field--year">
+      <select
+        id="activityYear"
+        class="cashier-select activity-toolbar__select"
+        [attr.aria-label]="'cashier.freeWashes.year' | translate"
+        [(ngModel)]="selectedYear"
+        (ngModelChange)="onFiltersChange()">
+        <option *ngFor="let year of years" [value]="year">{{ year }}</option>
+      </select>
+    </label>
+
+    <button
+      type="button"
+      class="activity-chip"
+      [class.activity-chip--active]="freeWashOnly"
+      (click)="toggleFreeWashFilter()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+        <path d="M20 7h-9"/>
+        <path d="M14 17H5"/>
+        <circle cx="17" cy="17" r="3"/>
+        <circle cx="7" cy="7" r="3"/>
+      </svg>
+      <span class="activity-chip__label activity-chip__label--long">{{ 'cashier.freeWashes.filterFreeOnly' | translate }}</span>
+      <span class="activity-chip__label activity-chip__label--short">{{ 'cashier.freeWashes.filterFreeOnlyShort' | translate }}</span>
+    </button>
+  </div>
+
+  <p class="cashier-error" *ngIf="loadError">{{ loadError | translate }}</p>
+  <p class="cashier-empty" *ngIf="loading">{{ 'cashier.freeWashes.loading' | translate }}</p>
+
+  <div class="summary-grid" *ngIf="!loading">
+    <div class="summary-card summary-card--revenue">
+      <span class="summary-card__icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+          <line x1="12" y1="1" x2="12" y2="23"/>
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+      </span>
+      <span class="summary-card__value">{{ formatPrice(summary.totalPrice) }}</span>
+      <span class="summary-card__label">{{ 'cashier.freeWashes.totalPrice' | translate }}</span>
+    </div>
+    <div class="summary-card summary-card--cash">
+      <span class="summary-card__icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+          <rect x="2" y="6" width="20" height="12" rx="2"/>
+          <circle cx="12" cy="12" r="2"/>
+          <path d="M6 12h.01M18 12h.01"/>
+        </svg>
+      </span>
+      <span class="summary-card__value">{{ summary.cashCount }}</span>
+      <span class="summary-card__label">{{ 'cashier.freeWashes.cashCount' | translate }}</span>
+    </div>
+    <div class="summary-card summary-card--card">
+      <span class="summary-card__icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+          <rect x="2" y="5" width="20" height="14" rx="2"/>
+          <line x1="2" y1="10" x2="22" y2="10"/>
+        </svg>
+      </span>
+      <span class="summary-card__value">{{ summary.cardCount }}</span>
+      <span class="summary-card__label">{{ 'cashier.freeWashes.cardCount' | translate }}</span>
+    </div>
+    <div class="summary-card summary-card--total">
+      <span class="summary-card__icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+      </span>
+      <span class="summary-card__value">{{ summary.totalCount }}</span>
+      <span class="summary-card__label">{{ 'cashier.freeWashes.total' | translate }}</span>
+    </div>
+  </div>
+
+  <div class="cashier-table-wrap" *ngIf="!loading && records.length">
+    <table class="cashier-table">
+      <thead>
+        <tr>
+          <th>{{ 'cashier.freeWashes.customer' | translate }}</th>
+          <th>{{ 'cashier.freeWashes.service' | translate }}</th>
+          <th>{{ 'cashier.freeWashes.price' | translate }}</th>
+          <th>{{ 'cashier.freeWashes.payment' | translate }}</th>
+          <th>{{ 'cashier.subscribers.plate' | translate }}</th>
+          <th>{{ 'cashier.subscribers.carType' | translate }}</th>
+          <th>{{ 'cashier.freeWashes.date' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let record of records">
+          <td>{{ record.userFullName }}</td>
+          <td>{{ serviceName(record) }}</td>
+          <td>{{ formatPrice(record.amountPaid) }}</td>
+          <td>
+            <span *ngIf="paymentLabel(record) as label" class="badge badge--existing">
+              {{ label | translate }}
+            </span>
+          </td>
+          <td>{{ record.plateNumber || '—' }}</td>
+          <td>{{ record.carType || '—' }}</td>
+          <td>{{ formatDate(record.createdAt) }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="cashier-empty" *ngIf="!loading && !records.length && !loadError">
+    {{ 'cashier.freeWashes.empty' | translate }}
+  </p>
+</section>

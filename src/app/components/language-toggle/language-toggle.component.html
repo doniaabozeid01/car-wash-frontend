@@ -1,16 +1,8 @@
-<div class="lang-toggle" [class.lang-toggle--compact]="compact">
-  <button
-    type="button"
-    class="lang-toggle__btn"
-    [class.lang-toggle__btn--active]="language.current === 'en'"
-    (click)="setLanguage('en')">
-    {{ 'lang.en' | translate }}
-  </button>
-  <button
-    type="button"
-    class="lang-toggle__btn"
-    [class.lang-toggle__btn--active]="language.current === 'ar'"
-    (click)="setLanguage('ar')">
-    {{ 'lang.ar' | translate }}
-  </button>
-</div>
+<button
+  type="button"
+  class="lang-toggle"
+  [class.lang-toggle--compact]="compact"
+  (click)="toggleLanguage()"
+  [attr.aria-label]="switchLabelKey | translate">
+  {{ currentLabelKey | translate }}
+</button>
