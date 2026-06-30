@@ -1,5 +1,5 @@
 export type CarSize = 'small' | 'large';
-export type PaymentMethod = 'cash' | 'card';
+export type PaymentMethod = 'cash' | 'network';
 
 export interface WashServiceItem {
   id: number;
@@ -34,6 +34,27 @@ export interface SubscriberRow {
   createdAt: string;
   isNew: boolean;
   car: CustomerCar | null;
+}
+
+export interface SubscriberUser {
+  id: string;
+  fullName: string;
+  phoneNumber: string;
+}
+
+export interface UserCarRecord {
+  id: number;
+  carType: string;
+  plateNumber: string;
+  size: number;
+  points: number;
+}
+
+export interface CreateCarInput {
+  userId: string;
+  carType: string;
+  plateNumber: string;
+  size: number;
 }
 
 export interface FreeWashRecord {

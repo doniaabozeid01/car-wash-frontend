@@ -10,6 +10,10 @@ import {
 import { LanguageService } from '../../../services/language.service';
 import { PointsService } from '../../../services/points.service';
 import { WashServicesService } from '../../../services/wash-services.service';
+import {
+  buildPointsAddedWhatsAppMessage,
+  openWhatsAppChat
+} from '../../../utils/whatsapp.util';
 
 type CheckoutStep = 'car' | 'service' | 'payment';
 
@@ -41,6 +45,9 @@ export class CashierScanComponent implements AfterViewInit, OnDestroy {
   actionMessageParams: Record<string, string | number> = {};
   actionError = false;
   paymentMethod: PaymentMethod = 'cash';
+  pointsAdded = 0;
+  customerPhone = '';
+  showWhatsAppAction = false;
 
   private scanner: Html5Qrcode | null = null;
   private scanLock = false;
@@ -178,6 +185,7 @@ export class CashierScanComponent implements AfterViewInit, OnDestroy {
     this.points.applyTransaction(body).subscribe({
       next: (result) => {
         const updatedCar = result.cars.find((car) => car.id === this.selectedCarId);
+        const pointsAdded = this.selectedService?.points ?? 0;
         this.actionLoading = false;
         this.showCheckout = false;
         this.showSuccess = true;
@@ -190,6 +198,14 @@ export class CashierScanComponent implements AfterViewInit, OnDestroy {
           name: result.fullName,
           points: updatedCar?.points ?? 0
         };
+        this.pointsAdded = pointsAdded > 0 ? pointsAdded : 0;
+        this.customerPhone = result.phoneNumber;
+        this.showWhatsAppAction = this.pointsAdded > 0 && !!result.phoneNumber;
+
+        if (this.showWhatsAppAction) {
+          this.sendPointsWhatsApp(result.phoneNumber, this.pointsAdded);
+        }
+
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -220,6 +236,14 @@ export class CashierScanComponent implements AfterViewInit, OnDestroy {
     return `${prefix}${service.points}`;
   }
 
+  sendPointsWhatsApp(phone = this.customerPhone, points = this.pointsAdded): void {
+    if (!phone || points <= 0) {
+      return;
+    }
+
+    openWhatsAppChat(phone, buildPointsAddedWhatsAppMessage(points));
+  }
+
   clearScan(): void {
     this.updateState({
       scannedQrCode: '',
@@ -238,6 +262,9 @@ export class CashierScanComponent implements AfterViewInit, OnDestroy {
       actionMessageParams: {},
       actionError: false,
       paymentMethod: 'cash',
+      pointsAdded: 0,
+      customerPhone: '',
+      showWhatsAppAction: false,
       scannerLoading: true
     });
     this.scanLock = false;

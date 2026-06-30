@@ -35,6 +35,6 @@ export interface PointsUpdatedEvent {
 }
 
 export const API_PAYMENT_METHOD = {
-  cash: 1,
-  network: 2
+  cash: 0,
+  network: 1
 } as const;

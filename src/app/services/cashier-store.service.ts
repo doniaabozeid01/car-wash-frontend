@@ -209,7 +209,7 @@ export class CashierStoreService {
 
         if (record.paymentMethod === 'cash') {
           summary.cashCount += 1;
-        } else if (record.paymentMethod === 'card') {
+        } else if (record.paymentMethod === 'network') {
           summary.cardCount += 1;
         }
 

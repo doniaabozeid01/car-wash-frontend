@@ -476,6 +476,20 @@
     line-height: 1.4;
   }
 
+  &__whatsapp {
+    width: 100%;
+    padding: 11px 16px;
+    border-radius: var(--radius-sm);
+    background: #25d366;
+    color: #fff;
+    font-size: 0.8125rem;
+    font-weight: 700;
+
+    &:hover {
+      background: #1ebe57;
+    }
+  }
+
   &__btn {
     margin-top: 4px;
     width: 100%;

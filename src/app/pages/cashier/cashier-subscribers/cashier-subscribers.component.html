@@ -1,94 +1,187 @@
-<section class="cashier-panel">
-  <div class="cashier-panel__head">
-    <div>
-      <h2 class="cashier-panel__title">{{ 'cashier.subscribers.title' | translate }}</h2>
-      <p class="cashier-panel__subtitle">{{ 'cashier.subscribers.subtitle' | translate }}</p>
+<section class="cashier-panel subscribers-panel">
+  <div class="subscribers-panel__intro">
+    <h2 class="cashier-panel__title">{{ 'cashier.subscribers.title' | translate }}</h2>
+    <p class="cashier-panel__subtitle">{{ 'cashier.subscribers.subtitle' | translate }}</p>
+  </div>
+
+  <div class="subscribers-toolbar">
+    <div class="subscribers-toolbar__period-icon" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+        <rect x="3" y="4" width="18" height="18" rx="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
     </div>
-    <label class="filter-toggle">
-      <input type="checkbox" [(ngModel)]="monthOnly" (ngModelChange)="toggleMonthFilter()">
-      <span>{{ 'cashier.subscribers.monthOnly' | translate }}</span>
+
+    <label class="subscribers-toolbar__field">
+      <select
+        id="subscribersMonth"
+        class="cashier-select subscribers-toolbar__select"
+        [attr.aria-label]="'cashier.subscribers.month' | translate"
+        [(ngModel)]="selectedMonth"
+        (ngModelChange)="onFiltersChange()">
+        <option *ngFor="let month of months" [value]="month.value">{{ month.label }}</option>
+      </select>
     </label>
+
+    <label class="subscribers-toolbar__field subscribers-toolbar__field--year">
+      <select
+        id="subscribersYear"
+        class="cashier-select subscribers-toolbar__select"
+        [attr.aria-label]="'cashier.subscribers.year' | translate"
+        [(ngModel)]="selectedYear"
+        (ngModelChange)="onFiltersChange()">
+        <option *ngFor="let year of years" [value]="year">{{ year }}</option>
+      </select>
+    </label>
+
+    <button
+      type="button"
+      class="subscribers-chip"
+      [class.subscribers-chip--active]="activeOnly"
+      (click)="toggleActiveOnly()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+        <path d="M20 7h-9"/>
+        <path d="M14 17H5"/>
+        <circle cx="17" cy="17" r="3"/>
+        <circle cx="7" cy="7" r="3"/>
+      </svg>
+      <span class="subscribers-chip__label subscribers-chip__label--long">{{ 'cashier.subscribers.monthOnly' | translate }}</span>
+      <span class="subscribers-chip__label subscribers-chip__label--short">{{ 'cashier.subscribers.monthOnlyShort' | translate }}</span>
+    </button>
   </div>
 
-  <div class="cashier-table-wrap" *ngIf="rows.length; else empty">
-    <table class="cashier-table">
-      <thead>
-        <tr>
-          <th>{{ 'cashier.subscribers.customer' | translate }}</th>
-          <th>{{ 'cashier.subscribers.phone' | translate }}</th>
-          <th>{{ 'cashier.subscribers.plate' | translate }}</th>
-          <th>{{ 'cashier.subscribers.carType' | translate }}</th>
-          <th>{{ 'cashier.subscribers.size' | translate }}</th>
-          <th>{{ 'cashier.subscribers.status' | translate }}</th>
-          <th>{{ 'cashier.subscribers.joined' | translate }}</th>
-          <th class="cashier-table__col-actions">{{ 'cashier.subscribers.actions' | translate }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let row of rows">
-          <td>{{ row.fullName }}</td>
-          <td>{{ row.phoneNumber }}</td>
-          <td>{{ row.car?.plateNumber || ('cashier.subscribers.noCar' | translate) }}</td>
-          <td>{{ row.car?.carType || '—' }}</td>
-          <td>
-            <span *ngIf="row.car" class="badge" [class.badge--small]="row.car.size === 'small'" [class.badge--large]="row.car.size === 'large'">
-              {{ (row.car.size === 'small' ? 'cashier.subscribers.sizeSmall' : 'cashier.subscribers.sizeLarge') | translate }}
+  <p class="cashier-error" *ngIf="loadError">{{ loadError | translate }}</p>
+  <p class="cashier-empty" *ngIf="loading">{{ 'cashier.subscribers.loading' | translate }}</p>
+
+  <div class="subscriber-list" *ngIf="!loading && users.length">
+    <article class="subscriber-card" *ngFor="let user of users">
+      <div class="subscriber-card__head">
+        <button type="button" class="subscriber-card__info-btn" (click)="toggleUser(user)">
+          <div class="subscriber-card__info">
+            <h3 class="subscriber-card__name">{{ user.fullName }}</h3>
+            <p class="subscriber-card__phone">{{ user.phoneNumber }}</p>
+          </div>
+        </button>
+
+        <div class="subscriber-card__head-actions">
+          <button
+            type="button"
+            class="subscriber-card__add"
+            [attr.aria-label]="'cashier.subscribers.addCar' | translate"
+            (click)="openAddCar(user)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+            <span>{{ 'cashier.subscribers.addCarShort' | translate }}</span>
+          </button>
+          <button
+            type="button"
+            class="subscriber-card__toggle-btn"
+            [attr.aria-label]="'cashier.subscribers.toggleCars' | translate"
+            (click)="toggleUser(user)">
+            <span class="subscriber-card__toggle" [class.subscriber-card__toggle--open]="isExpanded(user.id)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
             </span>
-            <span *ngIf="!row.car">—</span>
-          </td>
-          <td>
-            <span class="badge" [class.badge--new]="row.isNew" [class.badge--existing]="!row.isNew">
-              {{ (row.isNew ? 'cashier.subscribers.new' : 'cashier.subscribers.existing') | translate }}
-            </span>
-          </td>
-          <td>{{ formatDate(row.car?.subscribedAt || row.createdAt) }}</td>
-          <td class="cashier-table__col-actions">
-            <div class="cashier-table__actions">
-              <button type="button" class="btn-inline" (click)="openAddCar(row)">
-                {{ 'cashier.subscribers.addCar' | translate }}
-              </button>
+          </button>
+        </div>
+      </div>
+
+      <div class="subscriber-card__body" *ngIf="isExpanded(user.id)">
+        <p class="cashier-empty subscriber-card__loading" *ngIf="isCarsLoading(user.id)">
+          {{ 'cashier.subscribers.carsLoading' | translate }}
+        </p>
+        <p class="cashier-error" *ngIf="carsError[user.id]">{{ carsError[user.id] | translate }}</p>
+
+        <div class="subscriber-cars" *ngIf="!isCarsLoading(user.id) && getCars(user.id).length">
+          <div class="subscriber-car" *ngFor="let car of getCars(user.id)">
+            <div class="subscriber-car__info">
+              <bdi class="subscriber-car__plate">{{ car.plateNumber }}</bdi>
+              <span class="subscriber-car__type">{{ car.carType }}</span>
             </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+
+            <div class="subscriber-car__stats">
+              <span class="subscriber-car__badge" [class.subscriber-car__badge--large]="car.size === 1">
+                {{ sizeLabel(car.size) | translate }}
+              </span>
+              <span class="subscriber-car__points">
+                <strong>{{ car.points }}</strong>
+                <span>{{ 'dashboard.pointsUnit' | translate }}</span>
+              </span>
+            </div>
+
+            <button
+              type="button"
+              class="subscriber-car__delete"
+              [attr.aria-label]="'cashier.subscribers.deleteCar' | translate"
+              [disabled]="deletingCarId === car.id"
+              (click)="deleteCar(user.id, car)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+                <path d="M3 6h18"/>
+                <path d="M8 6V4h8v2"/>
+                <path d="M19 6l-1 14H6L5 6"/>
+                <path d="M10 11v6M14 11v6"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <p class="cashier-empty subscriber-card__no-cars" *ngIf="!isCarsLoading(user.id) && !getCars(user.id).length">
+          {{ 'cashier.subscribers.noCars' | translate }}
+        </p>
+      </div>
+    </article>
   </div>
 
-  <ng-template #empty>
-    <p class="cashier-empty">{{ 'cashier.subscribers.empty' | translate }}</p>
-  </ng-template>
+  <p class="cashier-empty" *ngIf="!loading && !users.length && !loadError">
+    {{ 'cashier.subscribers.empty' | translate }}
+  </p>
 </section>
 
 <div class="cashier-modal-backdrop" *ngIf="showCarModal" (click)="closeCarModal()">
   <div class="cashier-modal" (click)="$event.stopPropagation()">
-    <h3 class="cashier-modal__title">{{ 'cashier.subscribers.addCarTitle' | translate: { name: selectedCustomerName } }}</h3>
+    <h3 class="cashier-modal__title">{{ 'cashier.subscribers.addCarTitle' | translate: { name: selectedUserName } }}</h3>
+    <p class="cashier-error" *ngIf="formError">{{ formError | translate }}</p>
     <form [formGroup]="carForm" (ngSubmit)="saveCar()" class="cashier-form">
       <div class="form-field">
         <label for="plateNumber">{{ 'cashier.subscribers.plate' | translate }}</label>
         <div class="input-wrapper">
-          <input id="plateNumber" type="text" formControlName="plateNumber" placeholder="ABC 1234">
+          <input id="plateNumber" type="text" formControlName="plateNumber">
         </div>
       </div>
       <div class="form-field">
         <label for="carType">{{ 'cashier.subscribers.carType' | translate }}</label>
         <div class="input-wrapper">
-          <input id="carType" type="text" formControlName="carType" placeholder="Toyota Corolla">
+          <input id="carType" type="text" formControlName="carType">
         </div>
       </div>
       <div class="form-field">
-        <label for="size">{{ 'cashier.subscribers.size' | translate }}</label>
-        <div class="input-wrapper">
-          <select id="size" formControlName="size" class="cashier-select">
-            <option value="small">{{ 'cashier.subscribers.sizeSmall' | translate }}</option>
-            <option value="large">{{ 'cashier.subscribers.sizeLarge' | translate }}</option>
-          </select>
+        <span class="form-field__label">{{ 'cashier.subscribers.size' | translate }}</span>
+        <div class="size-picker">
+          <button
+            type="button"
+            class="size-picker__option"
+            [class.size-picker__option--active]="carForm.value.size === 0"
+            (click)="carForm.patchValue({ size: 0 })">
+            {{ 'cashier.subscribers.sizeSmall' | translate }}
+          </button>
+          <button
+            type="button"
+            class="size-picker__option"
+            [class.size-picker__option--active]="carForm.value.size === 1"
+            (click)="carForm.patchValue({ size: 1 })">
+            {{ 'cashier.subscribers.sizeLarge' | translate }}
+          </button>
         </div>
       </div>
       <div class="cashier-form__actions">
-        <button type="submit" class="btn-inline btn-inline--primary" [disabled]="carForm.invalid">
+        <button type="submit" class="btn-inline btn-inline--primary" [disabled]="carForm.invalid || savingCar">
           {{ 'cashier.subscribers.saveCar' | translate }}
         </button>
-        <button type="button" class="btn-inline" (click)="closeCarModal()">{{ 'cashier.cancel' | translate }}</button>
+        <button type="button" class="btn-inline" (click)="closeCarModal()" [disabled]="savingCar">{{ 'cashier.cancel' | translate }}</button>
       </div>
     </form>
   </div>

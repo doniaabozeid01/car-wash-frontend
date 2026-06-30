@@ -127,9 +127,9 @@
               <button
                 type="button"
                 class="payment-toggle__btn"
-                [class.payment-toggle__btn--active]="paymentMethod === 'card'"
-                (click)="paymentMethod = 'card'">
-                {{ 'cashier.paymentCard' | translate }}
+                [class.payment-toggle__btn--active]="paymentMethod === 'network'"
+                (click)="paymentMethod = 'network'">
+                {{ 'cashier.paymentNetwork' | translate }}
               </button>
             </div>
 
@@ -159,6 +159,13 @@
           {{ actionMessage.startsWith('cashier.') ? (actionMessage | translate: actionMessageParams) : actionMessage }}
         </p>
         <p class="scanner-success__hint">{{ 'cashier.scanAgainHint' | translate }}</p>
+        <button
+          type="button"
+          class="scanner-success__whatsapp"
+          *ngIf="showWhatsAppAction"
+          (click)="sendPointsWhatsApp()">
+          {{ 'cashier.sendWhatsApp' | translate }}
+        </button>
         <button type="button" class="scanner-success__btn" (click)="clearScan()">{{ 'cashier.scanNext' | translate }}</button>
       </div>
     </div>

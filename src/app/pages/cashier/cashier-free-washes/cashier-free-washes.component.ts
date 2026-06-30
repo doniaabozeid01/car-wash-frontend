@@ -75,7 +75,7 @@ export class CashierFreeWashesComponent implements OnInit, OnDestroy {
     }
 
     return record.paymentMethod === 1
-      ? 'cashier.freeWashes.paymentCard'
+      ? 'cashier.freeWashes.paymentNetwork'
       : 'cashier.freeWashes.paymentCash';
   }
 
