@@ -80,10 +80,10 @@ export class CashierFreeWashesComponent implements OnInit, OnDestroy {
   }
 
   formatPrice(price: number): string {
-    const locale = this.language.current === 'ar' ? 'ar-EG' : 'en-US';
+    const locale = this.language.current === 'ar' ? 'ar-SA' : 'en-SA';
     return new Intl.NumberFormat(locale, {
       style: 'currency',
-      currency: 'EGP',
+      currency: 'SAR',
       maximumFractionDigits: 0
     }).format(price);
   }

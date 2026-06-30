@@ -21,7 +21,7 @@
 
 .subscribers-toolbar {
   display: grid;
-  grid-template-columns: auto 1fr minmax(72px, 0.55fr) auto;
+  grid-template-columns: auto minmax(120px, 1fr) minmax(120px, 1fr) auto;
   align-items: center;
   gap: 8px;
   padding: 10px 12px;
@@ -45,10 +45,6 @@
   &__field {
     display: flex;
     min-width: 0;
-
-    &--year {
-      min-width: 72px;
-    }
   }
 
   &__select {
@@ -353,9 +349,18 @@
   }
 
   .subscribers-toolbar {
-    grid-template-columns: auto 1fr 76px;
+    grid-template-columns: auto minmax(0, 1fr) 96px;
     gap: 6px;
     padding: 8px 10px;
+
+    &__field--month {
+      max-width: none;
+    }
+
+    &__field--year {
+      min-width: 96px;
+      width: 96px;
+    }
   }
 
   .subscribers-chip {
