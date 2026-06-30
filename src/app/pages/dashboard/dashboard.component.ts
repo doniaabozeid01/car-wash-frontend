@@ -5,6 +5,7 @@ import { UserCar, UserProfile } from '../../models/auth.models';
 import { AuthService } from '../../services/auth.service';
 import { PointsHubService } from '../../services/points-hub.service';
 import { WashServicesService } from '../../services/wash-services.service';
+import { getCarSizeLabelKey, getCarSizeModifier } from '../../utils/car-size';
 
 @Component({
   selector: 'app-dashboard',
@@ -67,8 +68,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return car.points >= this.freeWashGoal;
   }
 
-  isLargeCar(car: UserCar): boolean {
-    return car.size === 1;
+  carSizeLabel(car: UserCar): string {
+    return getCarSizeLabelKey(car.size, 'dashboard');
+  }
+
+  carSizeModifier(car: UserCar): 'small' | 'medium' | 'large' {
+    return getCarSizeModifier(car.size);
   }
 
   private loadProfile(): void {
