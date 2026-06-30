@@ -70,7 +70,7 @@
     }
 
     &--checkout {
-      height: clamp(440px, 68vh, 680px);
+      height: clamp(360px, 56vh, 500px);
     }
   }
 
@@ -218,10 +218,11 @@
   z-index: 5;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 18px 20px;
+  gap: 10px;
+  padding: 14px 16px 12px;
   background: rgba(255, 255, 255, 0.98);
-  overflow: hidden;
+  overflow-y: auto;
+  justify-content: flex-start;
 
   &__head {
     text-align: center;
@@ -248,9 +249,8 @@
   }
 
   &__body {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
+    flex: 0 0 auto;
+    width: 100%;
   }
 
   &__primary,
@@ -290,7 +290,8 @@
     font-size: 0.8125rem;
     font-weight: 600;
     color: var(--text-muted);
-    padding: 6px;
+    padding: 4px 6px 0;
+    margin-top: 2px;
     text-align: center;
   }
 }
@@ -355,7 +356,7 @@
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 4px 12px;
-  padding: 14px 16px;
+  padding: 12px 14px;
   border: 1.5px solid var(--border-subtle);
   border-radius: var(--radius-md);
   background: var(--bg-secondary);
@@ -540,11 +541,7 @@
     }
 
     .scanner-card__viewport--checkout {
-      height: clamp(480px, 74vh, 720px);
-    }
-
-    .checkout-panel {
-      padding: 20px 18px;
+      height: clamp(380px, 58vh, 520px);
     }
   }
 }
