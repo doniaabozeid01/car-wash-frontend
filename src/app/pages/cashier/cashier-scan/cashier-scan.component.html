@@ -1,4 +1,4 @@
-<section class="scanner-card">
+<section class="scanner-card" [class.scanner-card--checkout]="showCheckout || showSuccess">
   <div class="scanner-card__head">
     <div>
       <h2 class="scanner-card__title">{{ 'cashier.scannerTitle' | translate }}</h2>
@@ -10,7 +10,10 @@
     </div>
   </div>
 
-  <div class="scanner-card__viewport" [class.scanner-card__viewport--live]="scannerActive">
+  <div
+    class="scanner-card__viewport"
+    [class.scanner-card__viewport--live]="scannerActive"
+    [class.scanner-card__viewport--checkout]="showCheckout || showSuccess">
     <div id="cashier-qr-reader" class="scanner-card__reader"></div>
 
     <div class="scanner-frame" *ngIf="scannerActive && !showCheckout && !showSuccess">
