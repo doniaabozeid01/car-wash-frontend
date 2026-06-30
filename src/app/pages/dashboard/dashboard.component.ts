@@ -4,7 +4,7 @@ import { Subscription } from 'rxjs';
 import { UserCar, UserProfile } from '../../models/auth.models';
 import { AuthService } from '../../services/auth.service';
 import { PointsHubService } from '../../services/points-hub.service';
-import { RewardsService } from '../../services/rewards.service';
+import { WashServicesService } from '../../services/wash-services.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -26,7 +26,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   constructor(
     private auth: AuthService,
     private router: Router,
-    private rewards: RewardsService,
+    private washServices: WashServicesService,
     private pointsHub: PointsHubService
   ) {}
 
@@ -36,7 +36,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.freeWashGoal = this.rewards.getFreeWashGoal();
+    this.washServices.load().subscribe({
+      next: () => {
+        this.freeWashGoal = this.washServices.getFreeWashGoal();
+      }
+    });
     this.loadProfile();
   }
 
@@ -100,7 +104,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.auth.fetchProfile().subscribe({
         next: (profile) => {
           this.bindProfile(profile);
-          this.rewards.syncPoints(profile.points, memberId);
         }
       });
     });

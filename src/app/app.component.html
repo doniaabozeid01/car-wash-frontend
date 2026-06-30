@@ -5,7 +5,14 @@
 
   <footer class="site-footer">
     <p class="site-footer__text">
-      {{ 'common.copyright' | translate: { year: currentYear } }}
+      {{ 'common.copyrightBefore' | translate: { year: currentYear } }}
+      <a
+        href="https://dm-solution.vercel.app/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="site-footer__link">
+        {{ 'common.copyrightLink' | translate }}
+      </a>{{ 'common.copyrightAfter' | translate }}
     </p>
   </footer>
 </div>

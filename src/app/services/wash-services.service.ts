@@ -9,6 +9,8 @@ const JSON_HEADERS = new HttpHeaders({
   Accept: 'application/json'
 });
 
+export const FREE_WASH_SERVICE_ID = 3;
+
 @Injectable({ providedIn: 'root' })
 export class WashServicesService {
   private readonly servicesSubject = new BehaviorSubject<WashServiceItem[]>([]);
@@ -19,6 +21,14 @@ export class WashServicesService {
 
   getServices(): WashServiceItem[] {
     return this.servicesSubject.value;
+  }
+
+  getFreeWashGoal(): number {
+    const service =
+      this.getServices().find((item) => item.id === FREE_WASH_SERVICE_ID) ??
+      this.getServices().find((item) => item.points < 0);
+
+    return Math.abs(service?.points ?? 250);
   }
 
   load(): Observable<WashServiceItem[]> {

@@ -9,7 +9,9 @@ export const TRANSLATIONS = {
       logout: 'Logout',
       phone: 'Phone Number',
       password: 'Password',
-      copyright: '© {{year}} FULL CARS. Produced by DM Solution.'
+      copyrightBefore: '© {{year}} FULL CARS. Produced by ',
+      copyrightLink: 'DM Solution',
+      copyrightAfter: '.'
     },
     lang: {
       en: 'en',
@@ -219,7 +221,9 @@ export const TRANSLATIONS = {
       logout: 'تسجيل الخروج',
       phone: 'رقم الهاتف',
       password: 'كلمة المرور',
-      copyright: '© {{year}} FULL CARS. من إنتاج شركة DM Solution.'
+      copyrightBefore: '© {{year}} FULL CARS. من إنتاج ',
+      copyrightLink: 'شركة DM Solution',
+      copyrightAfter: '.'
     },
     lang: {
       en: 'en',
