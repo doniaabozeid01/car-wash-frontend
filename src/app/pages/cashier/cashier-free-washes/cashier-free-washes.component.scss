@@ -246,23 +246,35 @@
   }
 
   .activity-toolbar {
-    grid-template-columns: auto minmax(68px, 0.7fr) minmax(96px, 1fr) minmax(60px, 0.65fr);
-    gap: 6px;
-    padding: 8px 10px;
+    grid-template-columns: auto 1fr 1fr;
+    gap: 8px;
+    padding: 10px 12px;
+    overflow-x: visible;
 
-    &__field--year {
-      min-width: 68px;
+    &__period-icon {
+      align-self: center;
+    }
+
+    &__field--year,
+    &__field--month,
+    &__field--day {
+      min-width: 0;
     }
 
     &__field--day {
-      min-width: 60px;
+      grid-column: 1 / -1;
+    }
+
+    &__select {
+      min-height: 38px;
+      font-size: 0.875rem;
     }
   }
 
   .activity-chip {
     grid-column: 1 / -1;
     width: 100%;
-    height: 34px;
+    height: 36px;
     padding: 0 10px;
 
     &__label--long {
