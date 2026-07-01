@@ -173,10 +173,37 @@ export class AuthService {
 
   private isSessionExpired(): boolean {
     const expiresAt = localStorage.getItem(EXPIRES_KEY);
-    if (!expiresAt) {
-      return false;
+    if (expiresAt) {
+      const expiresMs = new Date(expiresAt).getTime();
+      if (!Number.isNaN(expiresMs)) {
+        return expiresMs <= Date.now();
+      }
     }
-    return new Date(expiresAt).getTime() <= Date.now();
+
+    const token = this.token ?? localStorage.getItem(TOKEN_KEY);
+    const jwtExpiry = token ? this.getJwtExpiry(token) : null;
+    if (jwtExpiry) {
+      return jwtExpiry <= Date.now();
+    }
+
+    return false;
+  }
+
+  private getJwtExpiry(token: string): number | null {
+    try {
+      const payload = token.split('.')[1];
+      if (!payload) {
+        return null;
+      }
+
+      const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/'))) as {
+        exp?: number;
+      };
+
+      return typeof decoded.exp === 'number' ? decoded.exp * 1000 : null;
+    } catch {
+      return null;
+    }
   }
 
   private mapProfile(profile: LoginResponse['profile'] | Record<string, unknown>): UserProfile {

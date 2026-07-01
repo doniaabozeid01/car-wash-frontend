@@ -88,10 +88,23 @@ export class CashierFreeWashesComponent implements OnInit, OnDestroy {
     }).format(price);
   }
 
-  formatDate(iso: string): string {
-    return new Date(iso).toLocaleString(
-      this.language.current === 'ar' ? 'ar-EG' : 'en-US'
-    );
+  formatRecordDate(iso: string): string {
+    const locale = this.language.current === 'ar' ? 'ar-EG' : 'en-US';
+    return new Date(iso).toLocaleDateString(locale, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+
+  formatRecordTime(iso: string): string {
+    const locale = this.language.current === 'ar' ? 'ar-EG' : 'en-US';
+    return new Date(iso).toLocaleTimeString(locale, {
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    });
   }
 
   private buildPeriodOptions(): void {

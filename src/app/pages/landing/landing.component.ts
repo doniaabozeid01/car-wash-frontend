@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-landing',
@@ -14,9 +15,20 @@ export class LandingComponent implements OnInit, OnDestroy {
   exiting = false;
   private timers: ReturnType<typeof setTimeout>[] = [];
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private auth: AuthService
+  ) {}
 
   ngOnInit(): void {
+    if (this.auth.isLoggedIn()) {
+      const user = this.auth.getUser();
+      if (user) {
+        void this.router.navigate([this.auth.getRouteForRole(user.role)]);
+        return;
+      }
+    }
+
     this.schedule(() => {
       this.exiting = true;
       this.schedule(() => this.goToLogin(), LandingComponent.EXIT_MS);

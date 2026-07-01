@@ -83,8 +83,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.profileLoading = false;
         void this.startPointsHub(profile.id);
       },
-      error: () => {
-        this.router.navigate(['/login']);
+      error: (err) => {
+        this.profileLoading = false;
+        if (err.status === 401) {
+          this.auth.logout();
+          this.router.navigate(['/login']);
+        }
       }
     });
   }

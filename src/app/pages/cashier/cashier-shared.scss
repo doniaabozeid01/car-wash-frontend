@@ -28,19 +28,23 @@
 
 .cashier-table-wrap {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
 }
 
 .cashier-table {
-  width: 100%;
+  width: max(100%, 52rem);
   border-collapse: collapse;
   font-size: 0.875rem;
+  table-layout: auto;
 
   th,
   td {
-    padding: 12px 10px;
+    padding: 12px 12px;
     text-align: start;
     border-bottom: 1px solid var(--border-subtle);
     vertical-align: middle;
+    white-space: nowrap;
   }
 
   th {

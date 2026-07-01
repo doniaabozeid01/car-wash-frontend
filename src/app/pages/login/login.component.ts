@@ -27,6 +27,14 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if (this.auth.isLoggedIn()) {
+      const user = this.auth.getUser();
+      if (user) {
+        void this.router.navigate([this.auth.getRouteForRole(user.role)]);
+        return;
+      }
+    }
+
     this.fromSplash = history.state?.fromSplash === true;
   }
 

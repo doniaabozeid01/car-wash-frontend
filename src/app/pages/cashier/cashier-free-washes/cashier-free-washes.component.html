@@ -123,7 +123,10 @@
           </td>
           <td>{{ record.plateNumber || '—' }}</td>
           <td>{{ record.carType || '—' }}</td>
-          <td>{{ formatDate(record.createdAt) }}</td>
+          <td class="activity-table__date">
+            <span class="activity-table__date-part">{{ formatRecordDate(record.createdAt) }}</span>
+            <span class="activity-table__time-part">{{ formatRecordTime(record.createdAt) }}</span>
+          </td>
         </tr>
       </tbody>
     </table>
