@@ -218,6 +218,64 @@ html[dir='rtl'] .cashier-select {
   }
 }
 
+.cashier-pagination {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding-top: 4px;
+
+  &__info {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  &__controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  &__status {
+    min-width: 88px;
+    text-align: center;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--brand-blue);
+  }
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 0 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(46, 88, 166, 0.2);
+    background: var(--bg-card);
+    color: var(--brand-blue);
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: background var(--transition), border-color var(--transition), color var(--transition);
+
+    &:hover:not(:disabled) {
+      border-color: var(--brand-orange);
+      color: var(--brand-orange);
+      background: rgba(245, 130, 32, 0.06);
+    }
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+  }
+}
+
 .cashier-empty {
   text-align: center;
   padding: 32px 16px;

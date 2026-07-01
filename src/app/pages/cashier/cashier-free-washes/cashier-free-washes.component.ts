@@ -10,6 +10,7 @@ import {
   WashRecordsService
 } from '../../../services/wash-records.service';
 import { WashServicesService } from '../../../services/wash-services.service';
+import { buildDayOptions } from '../../../utils/period-filter.util';
 
 interface PeriodOption {
   value: number;
@@ -30,10 +31,13 @@ export class CashierFreeWashesComponent implements OnInit, OnDestroy {
     totalCount: 0
   };
   selectedYear = new Date().getFullYear();
-  selectedMonth = new Date().getMonth() + 1;
+  selectedMonth: number | null = new Date().getMonth() + 1;
+  selectedDay: number | null = null;
   freeWashOnly = false;
   loading = false;
   loadError = '';
+  currentPage = 1;
+  readonly pageSize = 10;
   months: PeriodOption[] = [];
   years: number[] = [];
 
@@ -56,12 +60,69 @@ export class CashierFreeWashesComponent implements OnInit, OnDestroy {
   }
 
   onFiltersChange(): void {
+    this.currentPage = 1;
     this.loadRecords();
+  }
+
+  onYearChange(): void {
+    this.normalizeDaySelection();
+    this.onFiltersChange();
+  }
+
+  onMonthChange(): void {
+    if (this.selectedMonth == null) {
+      this.selectedDay = null;
+    } else {
+      this.normalizeDaySelection();
+    }
+    this.onFiltersChange();
+  }
+
+  onDayChange(): void {
+    this.onFiltersChange();
+  }
+
+  get days(): number[] {
+    return buildDayOptions(this.selectedYear, this.selectedMonth);
+  }
+
+  get dayFilterDisabled(): boolean {
+    return this.selectedMonth == null;
   }
 
   toggleFreeWashFilter(): void {
     this.freeWashOnly = !this.freeWashOnly;
+    this.currentPage = 1;
     this.loadRecords();
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.records.length / this.pageSize));
+  }
+
+  get paginatedRecords(): WashRecord[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.records.slice(start, start + this.pageSize);
+  }
+
+  get pageStart(): number {
+    if (!this.records.length) {
+      return 0;
+    }
+
+    return (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get pageEnd(): number {
+    return Math.min(this.currentPage * this.pageSize, this.records.length);
+  }
+
+  get showPagination(): boolean {
+    return !this.loading && this.records.length > this.pageSize;
+  }
+
+  goToPage(page: number): void {
+    this.currentPage = Math.min(Math.max(1, page), this.totalPages);
   }
 
   serviceName(record: WashRecord): string {
@@ -127,9 +188,19 @@ export class CashierFreeWashesComponent implements OnInit, OnDestroy {
 
     const washServiceId = this.freeWashOnly ? this.getFreeWashServiceId() : undefined;
 
-    this.washRecords.load(this.selectedYear, this.selectedMonth, washServiceId).subscribe({
+    this.washRecords
+      .load(
+        {
+          year: this.selectedYear,
+          month: this.selectedMonth,
+          day: this.selectedDay
+        },
+        washServiceId
+      )
+      .subscribe({
       next: (report) => {
         this.records = report.records;
+        this.currentPage = 1;
         this.summary = {
           totalPrice: report.totalAmount,
           cashCount: report.cashCount,
@@ -140,6 +211,7 @@ export class CashierFreeWashesComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.records = [];
+        this.currentPage = 1;
         this.summary = {
           totalPrice: 0,
           cashCount: 0,
@@ -155,5 +227,16 @@ export class CashierFreeWashesComponent implements OnInit, OnDestroy {
   private getFreeWashServiceId(): number {
     const service = this.washServices.getServices().find((item) => item.points < 0);
     return service?.id ?? DEFAULT_FREE_WASH_SERVICE_ID;
+  }
+
+  private normalizeDaySelection(): void {
+    if (this.selectedMonth == null || this.selectedDay == null) {
+      return;
+    }
+
+    const maxDay = buildDayOptions(this.selectedYear, this.selectedMonth).length;
+    if (this.selectedDay > maxDay) {
+      this.selectedDay = null;
+    }
   }
 }

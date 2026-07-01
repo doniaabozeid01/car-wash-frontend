@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { WashRecord, WashRecordsReport } from '../models/cashier.models';
+import { appendPeriodParams, PeriodFilter } from '../utils/period-filter.util';
 
 const DEFAULT_FREE_WASH_SERVICE_ID = 3;
 
@@ -10,8 +11,8 @@ const DEFAULT_FREE_WASH_SERVICE_ID = 3;
 export class WashRecordsService {
   constructor(private http: HttpClient) {}
 
-  load(year: number, month: number, washServiceId?: number): Observable<WashRecordsReport> {
-    let params = new HttpParams().set('year', year).set('month', month);
+  load(filter: PeriodFilter, washServiceId?: number): Observable<WashRecordsReport> {
+    let params = appendPeriodParams(new HttpParams(), filter);
 
     if (washServiceId != null) {
       params = params.set('washServiceId', washServiceId);

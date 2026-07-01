@@ -3,20 +3,22 @@ import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { SubscriberUser } from '../models/cashier.models';
+import { appendPeriodParams, PeriodFilter } from '../utils/period-filter.util';
 
 @Injectable({ providedIn: 'root' })
 export class UsersService {
   constructor(private http: HttpClient) {}
 
-  load(year: number, month: number, activeOnly: boolean): Observable<SubscriberUser[]> {
-    const params = new HttpParams()
-      .set('year', year)
-      .set('month', month)
-      .set('activeOnly', activeOnly);
+  load(filter: PeriodFilter, activeOnly: boolean): Observable<SubscriberUser[]> {
+    const params = appendPeriodParams(new HttpParams(), filter).set('activeOnly', activeOnly);
 
     return this.http
       .get<unknown>(this.apiUrl('/api/Users'), { params })
       .pipe(map((response) => this.mapList(response)));
+  }
+
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(this.apiUrl(`/api/Users/${id}`));
   }
 
   private mapList(response: unknown): SubscriberUser[] {

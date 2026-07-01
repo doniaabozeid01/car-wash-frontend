@@ -1,7 +1,12 @@
 <section class="cashier-panel subscribers-panel">
-  <div class="subscribers-panel__intro">
-    <h2 class="cashier-panel__title">{{ 'cashier.subscribers.title' | translate }}</h2>
-    <p class="cashier-panel__subtitle">{{ 'cashier.subscribers.subtitle' | translate }}</p>
+  <div class="subscribers-panel__head">
+    <div class="subscribers-panel__intro">
+      <h2 class="cashier-panel__title">{{ 'cashier.subscribers.title' | translate }}</h2>
+      <p class="cashier-panel__subtitle">{{ 'cashier.subscribers.subtitle' | translate }}</p>
+    </div>
+    <button type="button" class="btn-inline btn-inline--primary" (click)="openAddCashier()" [disabled]="loading">
+      {{ 'cashier.subscribers.addCashier' | translate }}
+    </button>
   </div>
 
   <div class="subscribers-toolbar">
@@ -14,25 +19,39 @@
       </svg>
     </div>
 
-    <label class="subscribers-toolbar__field subscribers-toolbar__field--month">
-      <select
-        id="subscribersMonth"
-        class="cashier-select subscribers-toolbar__select"
-        [attr.aria-label]="'cashier.subscribers.month' | translate"
-        [(ngModel)]="selectedMonth"
-        (ngModelChange)="onFiltersChange()">
-        <option *ngFor="let month of months" [value]="month.value">{{ month.label }}</option>
-      </select>
-    </label>
-
     <label class="subscribers-toolbar__field subscribers-toolbar__field--year">
       <select
         id="subscribersYear"
         class="cashier-select subscribers-toolbar__select"
         [attr.aria-label]="'cashier.subscribers.year' | translate"
         [(ngModel)]="selectedYear"
-        (ngModelChange)="onFiltersChange()">
-        <option *ngFor="let year of years" [value]="year">{{ year }}</option>
+        (ngModelChange)="onYearChange()">
+        <option *ngFor="let year of years" [ngValue]="year">{{ year }}</option>
+      </select>
+    </label>
+
+    <label class="subscribers-toolbar__field subscribers-toolbar__field--month">
+      <select
+        id="subscribersMonth"
+        class="cashier-select subscribers-toolbar__select"
+        [attr.aria-label]="'cashier.subscribers.month' | translate"
+        [(ngModel)]="selectedMonth"
+        (ngModelChange)="onMonthChange()">
+        <option [ngValue]="null">{{ 'cashier.period.allMonths' | translate }}</option>
+        <option *ngFor="let month of months" [ngValue]="month.value">{{ month.label }}</option>
+      </select>
+    </label>
+
+    <label class="subscribers-toolbar__field subscribers-toolbar__field--day">
+      <select
+        id="subscribersDay"
+        class="cashier-select subscribers-toolbar__select"
+        [attr.aria-label]="'cashier.period.day' | translate"
+        [(ngModel)]="selectedDay"
+        [disabled]="dayFilterDisabled"
+        (ngModelChange)="onDayChange()">
+        <option [ngValue]="null">{{ 'cashier.period.allDays' | translate }}</option>
+        <option *ngFor="let day of days" [ngValue]="day">{{ day }}</option>
       </select>
     </label>
 
@@ -53,10 +72,11 @@
   </div>
 
   <p class="cashier-error" *ngIf="loadError">{{ loadError | translate }}</p>
+  <p class="cashier-error" *ngIf="userDeleteError">{{ userDeleteError | translate }}</p>
   <p class="cashier-empty" *ngIf="loading">{{ 'cashier.subscribers.loading' | translate }}</p>
 
   <div class="subscriber-list" *ngIf="!loading && users.length">
-    <article class="subscriber-card" *ngFor="let user of users">
+    <article class="subscriber-card" *ngFor="let user of paginatedUsers">
       <div class="subscriber-card__head">
         <button type="button" class="subscriber-card__info-btn" (click)="toggleUser(user)">
           <div class="subscriber-card__info">
@@ -66,6 +86,19 @@
         </button>
 
         <div class="subscriber-card__head-actions">
+          <button
+            type="button"
+            class="subscriber-card__delete"
+            [attr.aria-label]="'cashier.subscribers.deleteUser' | translate"
+            [disabled]="deletingUserId === user.id"
+            (click)="deleteUser(user)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+              <path d="M3 6h18"/>
+              <path d="M8 6V4h8v2"/>
+              <path d="M19 6l-1 14H6L5 6"/>
+              <path d="M10 11v6M14 11v6"/>
+            </svg>
+          </button>
           <button
             type="button"
             class="subscriber-card__add"
@@ -139,6 +172,31 @@
     </article>
   </div>
 
+  <nav class="cashier-pagination" *ngIf="showPagination" aria-label="Pagination">
+    <p class="cashier-pagination__info">
+      {{ 'cashier.subscribers.showing' | translate: { from: pageStart, to: pageEnd, total: users.length } }}
+    </p>
+    <div class="cashier-pagination__controls">
+      <button
+        type="button"
+        class="cashier-pagination__btn"
+        [disabled]="currentPage === 1"
+        (click)="goToPage(currentPage - 1)">
+        {{ 'cashier.subscribers.previous' | translate }}
+      </button>
+      <span class="cashier-pagination__status">
+        {{ 'cashier.subscribers.pageOf' | translate: { page: currentPage, total: totalPages } }}
+      </span>
+      <button
+        type="button"
+        class="cashier-pagination__btn"
+        [disabled]="currentPage === totalPages"
+        (click)="goToPage(currentPage + 1)">
+        {{ 'cashier.subscribers.next' | translate }}
+      </button>
+    </div>
+  </nav>
+
   <p class="cashier-empty" *ngIf="!loading && !users.length && !loadError">
     {{ 'cashier.subscribers.empty' | translate }}
   </p>
@@ -179,6 +237,40 @@
           {{ 'cashier.subscribers.saveCar' | translate }}
         </button>
         <button type="button" class="btn-inline" (click)="closeCarModal()" [disabled]="savingCar">{{ 'cashier.cancel' | translate }}</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="cashier-modal-backdrop" *ngIf="showCashierModal" (click)="closeCashierModal()">
+  <div class="cashier-modal" (click)="$event.stopPropagation()">
+    <h3 class="cashier-modal__title">{{ 'cashier.subscribers.addCashierTitle' | translate }}</h3>
+    <p class="cashier-success" *ngIf="cashierFormSuccess">{{ cashierFormSuccess | translate }}</p>
+    <p class="cashier-error" *ngIf="cashierFormError">{{ cashierFormError | translate }}</p>
+    <form [formGroup]="cashierForm" (ngSubmit)="saveCashier()" class="cashier-form">
+      <div class="form-field">
+        <label for="cashierFullName">{{ 'cashier.subscribers.cashierName' | translate }}</label>
+        <div class="input-wrapper">
+          <input id="cashierFullName" type="text" formControlName="fullName">
+        </div>
+      </div>
+      <div class="form-field">
+        <label for="cashierPhone">{{ 'cashier.subscribers.cashierPhone' | translate }}</label>
+        <div class="input-wrapper">
+          <input id="cashierPhone" type="tel" formControlName="phone">
+        </div>
+      </div>
+      <div class="form-field">
+        <label for="cashierPassword">{{ 'cashier.subscribers.cashierPassword' | translate }}</label>
+        <div class="input-wrapper">
+          <input id="cashierPassword" type="password" formControlName="password">
+        </div>
+      </div>
+      <div class="cashier-form__actions">
+        <button type="submit" class="btn-inline btn-inline--primary" [disabled]="cashierForm.invalid || savingCashier">
+          {{ 'cashier.subscribers.saveCashier' | translate }}
+        </button>
+        <button type="button" class="btn-inline" (click)="closeCashierModal()" [disabled]="savingCashier">{{ 'cashier.cancel' | translate }}</button>
       </div>
     </form>
   </div>

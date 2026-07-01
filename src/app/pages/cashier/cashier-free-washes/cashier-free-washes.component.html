@@ -14,25 +14,39 @@
       </svg>
     </div>
 
-    <label class="activity-toolbar__field activity-toolbar__field--month">
-      <select
-        id="activityMonth"
-        class="cashier-select activity-toolbar__select"
-        [attr.aria-label]="'cashier.freeWashes.month' | translate"
-        [(ngModel)]="selectedMonth"
-        (ngModelChange)="onFiltersChange()">
-        <option *ngFor="let month of months" [value]="month.value">{{ month.label }}</option>
-      </select>
-    </label>
-
     <label class="activity-toolbar__field activity-toolbar__field--year">
       <select
         id="activityYear"
         class="cashier-select activity-toolbar__select"
         [attr.aria-label]="'cashier.freeWashes.year' | translate"
         [(ngModel)]="selectedYear"
-        (ngModelChange)="onFiltersChange()">
-        <option *ngFor="let year of years" [value]="year">{{ year }}</option>
+        (ngModelChange)="onYearChange()">
+        <option *ngFor="let year of years" [ngValue]="year">{{ year }}</option>
+      </select>
+    </label>
+
+    <label class="activity-toolbar__field activity-toolbar__field--month">
+      <select
+        id="activityMonth"
+        class="cashier-select activity-toolbar__select"
+        [attr.aria-label]="'cashier.freeWashes.month' | translate"
+        [(ngModel)]="selectedMonth"
+        (ngModelChange)="onMonthChange()">
+        <option [ngValue]="null">{{ 'cashier.period.allMonths' | translate }}</option>
+        <option *ngFor="let month of months" [ngValue]="month.value">{{ month.label }}</option>
+      </select>
+    </label>
+
+    <label class="activity-toolbar__field activity-toolbar__field--day">
+      <select
+        id="activityDay"
+        class="cashier-select activity-toolbar__select"
+        [attr.aria-label]="'cashier.period.day' | translate"
+        [(ngModel)]="selectedDay"
+        [disabled]="dayFilterDisabled"
+        (ngModelChange)="onDayChange()">
+        <option [ngValue]="null">{{ 'cashier.period.allDays' | translate }}</option>
+        <option *ngFor="let day of days" [ngValue]="day">{{ day }}</option>
       </select>
     </label>
 
@@ -112,7 +126,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let record of records">
+        <tr *ngFor="let record of paginatedRecords">
           <td>{{ record.userFullName }}</td>
           <td>{{ serviceName(record) }}</td>
           <td>{{ formatPrice(record.amountPaid) }}</td>
@@ -131,6 +145,31 @@
       </tbody>
     </table>
   </div>
+
+  <nav class="cashier-pagination" *ngIf="showPagination" aria-label="Pagination">
+    <p class="cashier-pagination__info">
+      {{ 'cashier.freeWashes.showing' | translate: { from: pageStart, to: pageEnd, total: records.length } }}
+    </p>
+    <div class="cashier-pagination__controls">
+      <button
+        type="button"
+        class="cashier-pagination__btn"
+        [disabled]="currentPage === 1"
+        (click)="goToPage(currentPage - 1)">
+        {{ 'cashier.freeWashes.previous' | translate }}
+      </button>
+      <span class="cashier-pagination__status">
+        {{ 'cashier.freeWashes.pageOf' | translate: { page: currentPage, total: totalPages } }}
+      </span>
+      <button
+        type="button"
+        class="cashier-pagination__btn"
+        [disabled]="currentPage === totalPages"
+        (click)="goToPage(currentPage + 1)">
+        {{ 'cashier.freeWashes.next' | translate }}
+      </button>
+    </div>
+  </nav>
 
   <p class="cashier-empty" *ngIf="!loading && !records.length && !loadError">
     {{ 'cashier.freeWashes.empty' | translate }}

@@ -21,13 +21,14 @@
 
 .activity-toolbar {
   display: grid;
-  grid-template-columns: auto minmax(120px, 1fr) minmax(120px, 1fr) auto;
+  grid-template-columns: auto minmax(72px, 0.75fr) minmax(110px, 1fr) minmax(64px, 0.65fr) auto;
   align-items: center;
   gap: 8px;
   padding: 10px 12px;
   border-radius: var(--radius-md);
   background: linear-gradient(135deg, rgba(46, 88, 166, 0.06) 0%, rgba(245, 130, 32, 0.05) 100%);
   border: 1px solid rgba(46, 88, 166, 0.12);
+  overflow-x: auto;
 
   &__period-icon {
     display: inline-flex;
@@ -245,17 +246,16 @@
   }
 
   .activity-toolbar {
-    grid-template-columns: auto minmax(0, 1fr) 96px;
+    grid-template-columns: auto minmax(68px, 0.7fr) minmax(96px, 1fr) minmax(60px, 0.65fr);
     gap: 6px;
     padding: 8px 10px;
 
-    &__field--month {
-      max-width: none;
+    &__field--year {
+      min-width: 68px;
     }
 
-    &__field--year {
-      min-width: 96px;
-      width: 96px;
+    &__field--day {
+      min-width: 60px;
     }
   }
 
@@ -277,7 +277,7 @@
 
 @media (min-width: 561px) and (max-width: 719px) {
   .activity-toolbar {
-    grid-template-columns: auto 1fr minmax(80px, 0.45fr) auto;
+    grid-template-columns: auto minmax(72px, 0.7fr) minmax(96px, 1fr) minmax(64px, 0.6fr) auto;
   }
 }
 

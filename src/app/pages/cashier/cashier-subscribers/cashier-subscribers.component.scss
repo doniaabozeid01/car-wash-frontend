@@ -6,10 +6,26 @@
   gap: 14px;
 }
 
+.subscribers-panel__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .subscribers-panel__intro {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
+}
+
+.cashier-success {
+  color: #166534;
+  margin: 0 0 12px;
+  font-weight: 600;
+  font-size: 0.8125rem;
 }
 
 .cashier-error {
@@ -21,13 +37,14 @@
 
 .subscribers-toolbar {
   display: grid;
-  grid-template-columns: auto minmax(120px, 1fr) minmax(120px, 1fr) auto;
+  grid-template-columns: auto minmax(72px, 0.75fr) minmax(110px, 1fr) minmax(64px, 0.65fr) auto;
   align-items: center;
   gap: 8px;
   padding: 10px 12px;
   border-radius: var(--radius-md);
   background: linear-gradient(135deg, rgba(46, 88, 166, 0.06) 0%, rgba(245, 130, 32, 0.05) 100%);
   border: 1px solid rgba(46, 88, 166, 0.12);
+  overflow-x: auto;
 
   &__period-icon {
     display: inline-flex;
@@ -144,6 +161,30 @@
       border-color: var(--brand-orange);
       color: var(--brand-orange);
       background: rgba(245, 130, 32, 0.08);
+    }
+  }
+
+  &__delete {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(185, 28, 28, 0.18);
+    background: rgba(185, 28, 28, 0.06);
+    color: #b91c1c;
+    transition: background var(--transition), border-color var(--transition), color var(--transition);
+
+    &:hover:not(:disabled) {
+      background: rgba(185, 28, 28, 0.12);
+      border-color: #b91c1c;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
   }
 
@@ -354,17 +395,16 @@
   }
 
   .subscribers-toolbar {
-    grid-template-columns: auto minmax(0, 1fr) 96px;
+    grid-template-columns: auto minmax(68px, 0.7fr) minmax(96px, 1fr) minmax(60px, 0.65fr);
     gap: 6px;
     padding: 8px 10px;
 
-    &__field--month {
-      max-width: none;
+    &__field--year {
+      min-width: 68px;
     }
 
-    &__field--year {
-      min-width: 96px;
-      width: 96px;
+    &__field--day {
+      min-width: 60px;
     }
   }
 

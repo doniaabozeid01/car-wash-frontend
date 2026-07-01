@@ -14,7 +14,7 @@ export const TRANSLATIONS = {
       copyrightAfter: '.'
     },
     lang: {
-      en: 'en',
+      en: 'En',
       ar: 'ع',
       switchToEn: 'Switch to English',
       switchToAr: 'Switch to Arabic'
@@ -138,6 +138,11 @@ export const TRANSLATIONS = {
         subscribers: 'Subscribers',
         freeWashes: 'Monthly Activity'
       },
+      period: {
+        day: 'Day',
+        allMonths: 'All months',
+        allDays: 'All days'
+      },
       services: {
         title: 'Wash Services',
         subtitle: 'Manage services and points',
@@ -183,13 +188,28 @@ export const TRANSLATIONS = {
         addCarTitle: 'Add car for {{name}}',
         saveCar: 'Save Car',
         deleteCar: 'Delete',
+        deleteUser: 'Delete user',
+        deleteUserConfirm: 'Delete {{name}}? This cannot be undone.',
+        deleteUserError: 'Could not delete user. Please try again.',
         carsLoading: 'Loading cars...',
         carsLoadError: 'Could not load cars.',
         saveCarError: 'Could not save car. Please try again.',
         deleteCarError: 'Could not delete car. Please try again.',
         empty: 'No subscribers for this period.',
         loading: 'Loading subscribers...',
-        loadError: 'Could not load subscribers. Please try again.'
+        loadError: 'Could not load subscribers. Please try again.',
+        addCashier: 'Add Cashier',
+        addCashierTitle: 'Add Cashier',
+        cashierName: 'Full Name',
+        cashierPhone: 'Phone Number',
+        cashierPassword: 'Password',
+        saveCashier: 'Create Cashier',
+        saveCashierSuccess: 'Cashier account created successfully.',
+        saveCashierError: 'Could not create cashier. Phone may already be registered.',
+        showing: 'Showing {{from}}–{{to}} of {{total}}',
+        pageOf: 'Page {{page}} of {{total}}',
+        previous: 'Previous',
+        next: 'Next'
       },
       freeWashes: {
         title: 'Monthly Activity',
@@ -213,7 +233,11 @@ export const TRANSLATIONS = {
         year: 'Year',
         empty: 'No transactions recorded for this month.',
         loading: 'Loading activity...',
-        loadError: 'Could not load monthly activity. Please try again.'
+        loadError: 'Could not load monthly activity. Please try again.',
+        showing: 'Showing {{from}}–{{to}} of {{total}}',
+        pageOf: 'Page {{page}} of {{total}}',
+        previous: 'Previous',
+        next: 'Next'
       }
     }
   },
@@ -228,7 +252,7 @@ export const TRANSLATIONS = {
       copyrightAfter: '.'
     },
     lang: {
-      en: 'en',
+      en: 'En',
       ar: 'ع',
       switchToEn: 'التبديل إلى الإنجليزية',
       switchToAr: 'التبديل إلى العربية'
@@ -352,6 +376,11 @@ export const TRANSLATIONS = {
         subscribers: 'المشتركين',
         freeWashes: 'حركات الشهر'
       },
+      period: {
+        day: 'اليوم',
+        allMonths: 'كل الشهور',
+        allDays: 'كل الأيام'
+      },
       services: {
         title: 'خدمات الغسيل',
         subtitle: 'إدارة الخدمات والنقاط',
@@ -397,13 +426,28 @@ export const TRANSLATIONS = {
         addCarTitle: 'إضافة سيارة لـ {{name}}',
         saveCar: 'حفظ السيارة',
         deleteCar: 'حذف',
+        deleteUser: 'حذف المستخدم',
+        deleteUserConfirm: 'حذف {{name}}؟ لا يمكن التراجع عن هذا الإجراء.',
+        deleteUserError: 'تعذر حذف المستخدم. حاول مرة أخرى.',
         carsLoading: 'جاري تحميل السيارات...',
         carsLoadError: 'تعذر تحميل السيارات.',
         saveCarError: 'تعذر حفظ السيارة. حاول مرة أخرى.',
         deleteCarError: 'تعذر حذف السيارة. حاول مرة أخرى.',
         empty: 'لا يوجد مشتركين في هذه الفترة.',
         loading: 'جاري تحميل المشتركين...',
-        loadError: 'تعذر تحميل المشتركين. حاول مرة أخرى.'
+        loadError: 'تعذر تحميل المشتركين. حاول مرة أخرى.',
+        addCashier: 'إضافة كاشير',
+        addCashierTitle: 'إضافة كاشير',
+        cashierName: 'الاسم الكامل',
+        cashierPhone: 'رقم الهاتف',
+        cashierPassword: 'كلمة المرور',
+        saveCashier: 'إنشاء حساب كاشير',
+        saveCashierSuccess: 'تم إنشاء حساب الكاشير بنجاح.',
+        saveCashierError: 'تعذر إنشاء الكاشير. قد يكون رقم الهاتف مسجلاً مسبقاً.',
+        showing: 'عرض {{from}}–{{to}} من {{total}}',
+        pageOf: 'صفحة {{page}} من {{total}}',
+        previous: 'السابق',
+        next: 'التالي'
       },
       freeWashes: {
         title: 'حركات الشهر',
@@ -427,7 +471,11 @@ export const TRANSLATIONS = {
         year: 'السنة',
         empty: 'لا توجد عمليات مسجلة لهذا الشهر.',
         loading: 'جاري تحميل الحركات...',
-        loadError: 'تعذر تحميل حركات الشهر. حاول مرة أخرى.'
+        loadError: 'تعذر تحميل حركات الشهر. حاول مرة أخرى.',
+        showing: 'عرض {{from}}–{{to}} من {{total}}',
+        pageOf: 'صفحة {{page}} من {{total}}',
+        previous: 'السابق',
+        next: 'التالي'
       }
     }
   }
