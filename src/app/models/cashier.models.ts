@@ -1,4 +1,4 @@
-export type CarSize = 'small' | 'large';
+export type CarSize = 'small' | 'medium' | 'large';
 export type PaymentMethod = 'cash' | 'network';
 
 export interface WashServiceItem {

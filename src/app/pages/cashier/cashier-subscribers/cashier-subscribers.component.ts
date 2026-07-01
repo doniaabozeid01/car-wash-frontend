@@ -5,6 +5,7 @@ import { SubscriberUser, UserCarRecord } from '../../../models/cashier.models';
 import { CarsService } from '../../../services/cars.service';
 import { LanguageService } from '../../../services/language.service';
 import { UsersService } from '../../../services/users.service';
+import { CarSize, getCarSizeLabelKey, getCarSizeModifier } from '../../../utils/car-size';
 
 interface PeriodOption {
   value: number;
@@ -96,8 +97,18 @@ export class CashierSubscribersComponent implements OnInit, OnDestroy {
   }
 
   sizeLabel(size: number): string {
-    return size === 1 ? 'cashier.subscribers.sizeLarge' : 'cashier.subscribers.sizeSmall';
+    return getCarSizeLabelKey(size, 'cashier.subscribers');
   }
+
+  sizeModifier(size: number): 'small' | 'medium' | 'large' {
+    return getCarSizeModifier(size);
+  }
+
+  readonly carSizes = [
+    { value: CarSize.Small, labelKey: 'cashier.subscribers.sizeSmall' },
+    { value: CarSize.Medium, labelKey: 'cashier.subscribers.sizeMedium' },
+    { value: CarSize.Large, labelKey: 'cashier.subscribers.sizeLarge' }
+  ];
 
   openAddCar(user: SubscriberUser): void {
     this.selectedUserId = user.id;

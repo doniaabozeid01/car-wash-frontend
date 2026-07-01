@@ -48,8 +48,9 @@
                 </div>
                 <span
                   class="car-points-item__size"
-                  [class.car-points-item__size--large]="isLargeCar(car)">
-                  {{ (isLargeCar(car) ? 'dashboard.sizeLarge' : 'dashboard.sizeSmall') | translate }}
+                  [class.car-points-item__size--medium]="carSizeModifier(car) === 'medium'"
+                  [class.car-points-item__size--large]="carSizeModifier(car) === 'large'">
+                  {{ carSizeLabel(car) | translate }}
                 </span>
               </div>
 

@@ -14,7 +14,7 @@
       </svg>
     </div>
 
-    <label class="subscribers-toolbar__field">
+    <label class="subscribers-toolbar__field subscribers-toolbar__field--month">
       <select
         id="subscribersMonth"
         class="cashier-select subscribers-toolbar__select"
@@ -104,7 +104,10 @@
             </div>
 
             <div class="subscriber-car__stats">
-              <span class="subscriber-car__badge" [class.subscriber-car__badge--large]="car.size === 1">
+              <span
+                class="subscriber-car__badge"
+                [class.subscriber-car__badge--medium]="sizeModifier(car.size) === 'medium'"
+                [class.subscriber-car__badge--large]="sizeModifier(car.size) === 'large'">
                 {{ sizeLabel(car.size) | translate }}
               </span>
               <span class="subscriber-car__points">
@@ -164,16 +167,10 @@
           <button
             type="button"
             class="size-picker__option"
-            [class.size-picker__option--active]="carForm.value.size === 0"
-            (click)="carForm.patchValue({ size: 0 })">
-            {{ 'cashier.subscribers.sizeSmall' | translate }}
-          </button>
-          <button
-            type="button"
-            class="size-picker__option"
-            [class.size-picker__option--active]="carForm.value.size === 1"
-            (click)="carForm.patchValue({ size: 1 })">
-            {{ 'cashier.subscribers.sizeLarge' | translate }}
+            *ngFor="let option of carSizes"
+            [class.size-picker__option--active]="carForm.value.size === option.value"
+            (click)="carForm.patchValue({ size: option.value })">
+            {{ option.labelKey | translate }}
           </button>
         </div>
       </div>
