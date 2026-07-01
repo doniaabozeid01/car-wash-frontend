@@ -209,7 +209,10 @@ export const TRANSLATIONS = {
         showing: 'Showing {{from}}–{{to}} of {{total}}',
         pageOf: 'Page {{page}} of {{total}}',
         previous: 'Previous',
-        next: 'Next'
+        next: 'Next',
+        search: 'Search subscribers',
+        searchPlaceholder: 'Search by name or phone',
+        searchNoResults: 'No subscribers match your search.'
       },
       freeWashes: {
         title: 'Monthly Activity',
@@ -447,7 +450,10 @@ export const TRANSLATIONS = {
         showing: 'عرض {{from}}–{{to}} من {{total}}',
         pageOf: 'صفحة {{page}} من {{total}}',
         previous: 'السابق',
-        next: 'التالي'
+        next: 'التالي',
+        search: 'بحث في المشتركين',
+        searchPlaceholder: 'ابحث بالاسم أو رقم الهاتف',
+        searchNoResults: 'لا يوجد مشتركين مطابقين للبحث.'
       },
       freeWashes: {
         title: 'حركات الشهر',

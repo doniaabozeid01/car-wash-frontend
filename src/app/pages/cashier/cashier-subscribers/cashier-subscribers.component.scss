@@ -101,6 +101,62 @@
   }
 }
 
+.subscribers-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 0 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(46, 88, 166, 0.16);
+  background: var(--bg-card);
+
+  &__icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    color: var(--brand-blue);
+    opacity: 0.8;
+  }
+
+  &__input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    outline: none;
+
+    &::placeholder {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    &::-webkit-search-cancel-button {
+      display: none;
+    }
+  }
+
+  &__clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    border-radius: 999px;
+    color: var(--text-muted);
+    transition: color var(--transition), background var(--transition);
+
+    &:hover {
+      color: var(--brand-orange);
+      background: rgba(245, 130, 32, 0.08);
+    }
+  }
+}
+
 .subscriber-list {
   display: flex;
   flex-direction: column;

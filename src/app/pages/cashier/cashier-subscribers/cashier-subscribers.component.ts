@@ -40,6 +40,7 @@ export class CashierSubscribersComponent implements OnInit, OnDestroy {
   deletingCarId: number | null = null;
   deletingUserId: string | null = null;
   userDeleteError = '';
+  searchQuery = '';
   currentPage = 1;
   readonly pageSize = 10;
   formError = '';
@@ -106,6 +107,37 @@ export class CashierSubscribersComponent implements OnInit, OnDestroy {
     this.onFiltersChange();
   }
 
+  onSearchChange(): void {
+    this.currentPage = 1;
+    this.expandedUserId = null;
+  }
+
+  clearSearch(): void {
+    this.searchQuery = '';
+    this.onSearchChange();
+  }
+
+  get filteredUsers(): SubscriberUser[] {
+    const query = this.searchQuery.trim().toLowerCase();
+    if (!query) {
+      return this.users;
+    }
+
+    const digits = query.replace(/\D/g, '');
+
+    return this.users.filter((user) => {
+      const nameMatch = user.fullName.toLowerCase().includes(query);
+      const phoneDigits = user.phoneNumber.replace(/\D/g, '');
+      const phoneMatch = digits ? phoneDigits.includes(digits) : user.phoneNumber.toLowerCase().includes(query);
+
+      return nameMatch || phoneMatch;
+    });
+  }
+
+  get showSearchEmpty(): boolean {
+    return !this.loading && !!this.users.length && !this.filteredUsers.length && !!this.searchQuery.trim();
+  }
+
   get days(): number[] {
     return buildDayOptions(this.selectedYear, this.selectedMonth);
   }
@@ -115,16 +147,16 @@ export class CashierSubscribersComponent implements OnInit, OnDestroy {
   }
 
   get totalPages(): number {
-    return Math.max(1, Math.ceil(this.users.length / this.pageSize));
+    return Math.max(1, Math.ceil(this.filteredUsers.length / this.pageSize));
   }
 
   get paginatedUsers(): SubscriberUser[] {
     const start = (this.currentPage - 1) * this.pageSize;
-    return this.users.slice(start, start + this.pageSize);
+    return this.filteredUsers.slice(start, start + this.pageSize);
   }
 
   get pageStart(): number {
-    if (!this.users.length) {
+    if (!this.filteredUsers.length) {
       return 0;
     }
 
@@ -132,11 +164,11 @@ export class CashierSubscribersComponent implements OnInit, OnDestroy {
   }
 
   get pageEnd(): number {
-    return Math.min(this.currentPage * this.pageSize, this.users.length);
+    return Math.min(this.currentPage * this.pageSize, this.filteredUsers.length);
   }
 
   get showPagination(): boolean {
-    return !this.loading && this.users.length > this.pageSize;
+    return !this.loading && this.filteredUsers.length > this.pageSize;
   }
 
   goToPage(page: number): void {

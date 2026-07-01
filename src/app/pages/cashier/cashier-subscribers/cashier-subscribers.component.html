@@ -71,11 +71,37 @@
     </button>
   </div>
 
+  <label class="subscribers-search">
+    <span class="subscribers-search__icon" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+        <circle cx="11" cy="11" r="7"/>
+        <path d="M20 20l-3-3"/>
+      </svg>
+    </span>
+    <input
+      type="search"
+      class="subscribers-search__input"
+      [(ngModel)]="searchQuery"
+      (ngModelChange)="onSearchChange()"
+      [attr.aria-label]="'cashier.subscribers.search' | translate"
+      [placeholder]="'cashier.subscribers.searchPlaceholder' | translate">
+    <button
+      type="button"
+      class="subscribers-search__clear"
+      *ngIf="searchQuery"
+      (click)="clearSearch()"
+      [attr.aria-label]="'cashier.cancel' | translate">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M18 6L6 18M6 6l12 12"/>
+      </svg>
+    </button>
+  </label>
+
   <p class="cashier-error" *ngIf="loadError">{{ loadError | translate }}</p>
   <p class="cashier-error" *ngIf="userDeleteError">{{ userDeleteError | translate }}</p>
   <p class="cashier-empty" *ngIf="loading">{{ 'cashier.subscribers.loading' | translate }}</p>
 
-  <div class="subscriber-list" *ngIf="!loading && users.length">
+  <div class="subscriber-list" *ngIf="!loading && filteredUsers.length">
     <article class="subscriber-card" *ngFor="let user of paginatedUsers">
       <div class="subscriber-card__head">
         <button type="button" class="subscriber-card__info-btn" (click)="toggleUser(user)">
@@ -174,7 +200,7 @@
 
   <nav class="cashier-pagination" *ngIf="showPagination" aria-label="Pagination">
     <p class="cashier-pagination__info">
-      {{ 'cashier.subscribers.showing' | translate: { from: pageStart, to: pageEnd, total: users.length } }}
+      {{ 'cashier.subscribers.showing' | translate: { from: pageStart, to: pageEnd, total: filteredUsers.length } }}
     </p>
     <div class="cashier-pagination__controls">
       <button
@@ -196,6 +222,10 @@
       </button>
     </div>
   </nav>
+
+  <p class="cashier-empty" *ngIf="showSearchEmpty">
+    {{ 'cashier.subscribers.searchNoResults' | translate }}
+  </p>
 
   <p class="cashier-empty" *ngIf="!loading && !users.length && !loadError">
     {{ 'cashier.subscribers.empty' | translate }}
