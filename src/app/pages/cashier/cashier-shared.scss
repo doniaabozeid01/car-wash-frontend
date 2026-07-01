@@ -33,7 +33,7 @@
 }
 
 .cashier-table {
-  width: max(100%, 52rem);
+  width: 100%;
   border-collapse: collapse;
   font-size: 0.875rem;
   table-layout: auto;
@@ -44,7 +44,19 @@
     text-align: start;
     border-bottom: 1px solid var(--border-subtle);
     vertical-align: middle;
-    white-space: nowrap;
+  }
+
+  &--wide {
+    width: max(100%, 52rem);
+
+    th,
+    td {
+      white-space: nowrap;
+    }
+
+    td.activity-table__date {
+      white-space: normal;
+    }
   }
 
   th {
